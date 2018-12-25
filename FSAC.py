@@ -9,7 +9,8 @@ from math import pi
 from math import log
 from math import exp
 
-Soot_Refractive_Index = 1.95-0.79j  # Complex refractive index
+Soot_Refractive_Index = 1.95-0.79j# Complex refractive index
+
 Soot_Primary_Agg_dp_sigma = 1  # Geometric std of primary particles within agg
 Soot_Fractal_D_mc = 0.52  # Fractal Properties for continuum regime
 Soot_Prefactor_k_mc = 0.85+(0.03 * Soot_Primary_Agg_dp_sigma ** (4.4))  # Fractal free molecular regime
