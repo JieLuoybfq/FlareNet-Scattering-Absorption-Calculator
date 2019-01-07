@@ -6,7 +6,9 @@ import os
 import numpy as np
 from math import pi
 from math import log
-from math import exp
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 import logging
 
 ####### Logging Parameters
@@ -100,6 +102,8 @@ if __name__ == "__main__":
     X_Label1 = 'Mobility-equivalent Diameter (nm)'
     Y_Label1 = 'dN/dLogDp, (#/cm' + "$^{}$".format(3) + ')'
     Y_Label2 = "Primary particle diameter-dp(m)"
+    Y_Label3 = "Absorption Cross Section(m^2)"
+    Y_Label4 = "Absorption Efficiency"
     for i in range(LogNormal_D_Median_Number_Sample):
         for j in range(LogNormal_Sigma_Number_Sample):
 
@@ -116,22 +120,54 @@ if __name__ == "__main__":
                 # SUM+=FN.LogNormal_Distribution(LogNormal_D_Median_Sample[i],LogNormal_Sigma_Sample[j],Diameter_Nano[k+1],Diameter_Nano[k])
 
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName=Situation + "_NC", Extension="jpg")
-            #FN.Figure_Plotter_Saver_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, LogNormal_Sample_SizeDistribution, "Number Concentration", Y_Label1, Situation)
+            # FN.Figure_Plotter_Saver_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, LogNormal_Sample_SizeDistribution, "Number Concentration", Y_Label1, Situation)
 
             # Primary Particle Size
             for k in range(Nd - 1):
                 Soot_Primary_Diameter_Median_meter.append(FN.Primary_Particle_Size_meter(diam[k], Diameter_Primary_100nm, D_TEM))
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName=Situation + "_PPS", Extension="jpg")
-            #FN.Figure_Plotter_Saver_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Soot_Primary_Diameter_Median_meter, "Primary Particle Size", Y_Label2, Situation)
+            # FN.Figure_Plotter_Saver_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Soot_Primary_Diameter_Median_meter, "Primary Particle Size", Y_Label2, Situation)
 
             # Finding Primary Particle Number and Size
-            Primary_Diameters=[]
+            Primary_Diameter_Bank = []
+            Primary_Number_Bank = []
+            Primary_Probability_Bank = []
+
+            # fig, ax = plt.subplots()
+            # fig = plt.figure()
+            # ax = fig.add_subplot(111, projection='3d')
+
             for k in range(Nd - 1):
-                Primary_Diameter, Primary_Number, Primary_Probability = FN.Primary_LogNormal_Generator(Soot_Primary_Diameter_Median_meter[k],Primary_Particle_Sigma_da_cte,Primary_Particle_Sigma_da_cte_Border,Primary_Particle_Sigma_da_cte_Nt,diam[k],Soot_Prefactor_k_mc,Soot_Fractal_D_mc)
-                a=3
+                Primary_Diameter, Primary_Number, Primary_Probability = FN.Primary_LogNormal_Generator(Soot_Primary_Diameter_Median_meter[k], Primary_Particle_Sigma_da_cte, Primary_Particle_Sigma_da_cte_Border, Primary_Particle_Sigma_da_cte_Nt, diam[k], Soot_Prefactor_k_mc, Soot_Fractal_D_mc)
+                Primary_Diameter_Bank.append(Primary_Diameter)
+                Primary_Number_Bank.append(Primary_Number)
+                Primary_Probability_Bank.append(Primary_Probability)
+                # dummy = []
+                # for p in range(Primary_Particle_Sigma_da_cte_Nt - 1):
+                #    dummy.append(Diameter_Nano[k])
+                # ax.plot(dummy, Primary_Diameter_Bank[k][:], Primary_Number_Bank[k][:])
+            # plt.show()
+
+            #Absorption
+            Absorption_Cross_Section_Sample=[]
+            for k in range(Nd - 1):
+                Absorption_Cross_Section_Specific_Particle_Size=0
+                for p in range(Primary_Particle_Sigma_da_cte_Nt - 1):
+                    Absorption_Cross_Section_Agg= FN.RDG_Absorption(Wave_Number, Primary_Number_Bank[k][p], Primary_Diameter_Bank[k][p], Soot_EM)  # within  aggregate
+                    Absorption_Cross_Section_Specific_Particle_Size+=Absorption_Cross_Section_Agg*Primary_Probability_Bank[k][p]*LogNormal_Sample_SizeDistribution[k]
+                Absorption_Cross_Section_Sample.append(Absorption_Cross_Section_Specific_Particle_Size)
+
+            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName=Situation + "_ABSCross", Extension="jpg")
+            FN.Figure_Plotter_Saver_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Absorption_Cross_Section_Sample, "Absorption Cross Section", Y_Label3, Situation)
+
+            Absorption_Efficiency_Sample=[]
+            for k in range(Nd - 1):
+                Absorption_Efficiency_Sample.append(FN.Absorption_Eff(Absorption_Cross_Section_Sample[k],diam[k]))
+
+            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName=Situation + "_ABSEff", Extension="jpg")
+            FN.Figure_Plotter_Saver_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Absorption_Efficiency_Sample, "Absorption Efficiency", Y_Label4, Situation)
 
             a = 3
-
 
             # Absorption_Cross_Section_Agg, Absorption_Cross_Section_Primary = FN.RDG_Absorption(Wave_Number, Primary_Number, Primary_Diameter, Soot_EM)  # within  aggregate
             # Absorption_Cross_Eff_1, Absorption_Cross_Primary_Eff_1 = FN.Absorption_Eff(Absorption_Cross_Section_Agg, Absorption_Cross_Section_Primary, diam[k], Primary_Diameter)

@@ -52,7 +52,6 @@ def Number_Primary_Particle(da_meter, dp_meter, Soot_Prefactor_k, Soot_Fractal_D
 
 
 def Primary_LogNormal_Generator(dp_Median_meter, Sigma_g_Primary, Sigma_g_Number, Number_Points, da_meter, Soot_Prefactor_k_mc, Soot_Fractal_D_mc):
-
     Dmax = dp_Median_meter * (Sigma_g_Primary ** Sigma_g_Number)
     Dmin = dp_Median_meter * (Sigma_g_Primary ** (-1 * Sigma_g_Number))
     Diam_total = np.linspace(Dmin, Dmax, num=Number_Points)
@@ -60,9 +59,9 @@ def Primary_LogNormal_Generator(dp_Median_meter, Sigma_g_Primary, Sigma_g_Number
     Probability = []
     Sum = 0
 
-    for i in range(len(Diam_total)-1):
+    for i in range(len(Diam_total) - 1):
         Number_Primary.append(Number_Primary_Particle(da_meter, Diam_total[i], Soot_Prefactor_k_mc, Soot_Fractal_D_mc))
-    for i in range(len(Diam_total)-1):
+    for i in range(len(Diam_total) - 1):
         Probability.append(LogNormal_Distribution(dp_Median_meter, Sigma_g_Primary, Diam_total[i + 1], Diam_total[i]))
         Sum += Probability[i]
 
@@ -105,8 +104,8 @@ def File_Pointer(Main, FolderName, FileName, Extension):
 
 
 def RDG_Absorption(K, N, Dp, E):
-    A = -1 * np.asarray(N) * 4 * pi * K * E * (np.asarray(Dp) / 2) ** 3
-    return A, A / N
+    A = -1 * N * 4 * pi * K * E * ((Dp / 2) ** 3)
+    return A
 
 
 def RDG_Total_Scatteing(K, F, N, Dp, Betha):
@@ -128,7 +127,7 @@ def Particle_Mass(rho, da):
     return A
 
 
-def Absorption_Eff(Abs_Cross, Abs_Cross_Prim, da, dp):
-    a = Abs_Cross / ((pi / 4) * np.asarray(da) ** 2)
-    b = Abs_Cross_Prim / ((pi / 4) * np.asarray(dp) ** 2)
-    return a, b
+def Absorption_Eff(Abs_Cross, da):
+    a = Abs_Cross / ((pi / 4) * (da ** 2))
+
+    return a
