@@ -177,6 +177,8 @@ if __name__ == "__main__":
             # Scattering RDG
             a = 4
 
+            a = 3
+
             # Absorption_Cross_Section_Agg, Absorption_Cross_Section_Primary = FN.RDG_Absorption(Wave_Number, Primary_Number, Primary_Diameter, Soot_EM)  # within  aggregate
             # Absorption_Cross_Eff_1, Absorption_Cross_Primary_Eff_1 = FN.Absorption_Eff(Absorption_Cross_Section_Agg, Absorption_Cross_Section_Primary, diam[k], Primary_Diameter)
             # Absorption_Cross_Section_Agg_Total = np.sum(Absorption_Cross_Section_Agg * Primary_Probability)
