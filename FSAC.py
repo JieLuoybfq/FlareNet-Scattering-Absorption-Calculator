@@ -175,7 +175,7 @@ if __name__ == "__main__":
             FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Absorption_Efficiency_Sample, "Absorption Efficiency", Y_Label4, Situation)
 
             # Scattering RDG
-            a = 3
+            a = 4
 
             # Absorption_Cross_Section_Agg, Absorption_Cross_Section_Primary = FN.RDG_Absorption(Wave_Number, Primary_Number, Primary_Diameter, Soot_EM)  # within  aggregate
             # Absorption_Cross_Eff_1, Absorption_Cross_Primary_Eff_1 = FN.Absorption_Eff(Absorption_Cross_Section_Agg, Absorption_Cross_Section_Primary, diam[k], Primary_Diameter)
