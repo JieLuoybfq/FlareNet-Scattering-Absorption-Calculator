@@ -7,6 +7,7 @@ import numpy as np
 from math import pi
 from math import log
 from math import sin
+from math import cos
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -31,10 +32,10 @@ if __name__ == "__main__":
     ####################### Particle Sample Setting
 
     Sample_Total_Number_Concentration = 1  # /cm^3
-    Sample_LogN_D_Median_Min = 200  # Smallest diameter of computation (nm)
+    Sample_LogN_D_Median_Min = 350  # Smallest diameter of computation (nm)
     Sample_LogN_D_Median_Max = 800  # Largest diameter of computation (nm)
     Sample_LogN_D_Median_Bins = 2  # Number of the Steps
-    Sample_LogN_Sigma_Min = 1.7  # Smallest Sigma G
+    Sample_LogN_Sigma_Min = 1  # Smallest Sigma G
     Sample_LogN_Sigma_Max = 2.5  # Largest Sigma G
     Sample_LogN_Sigma_Bins = 2  # Number of the Steps
     Sample_Sigma_Bound = 2.5  # Number of Sigma G to cover
@@ -44,8 +45,8 @@ if __name__ == "__main__":
 
     Primary_Diameter_100nm = 16.48 * 1e-9  # Primary particle diameter of 100 nm aggregate
     Primary_D_TEM = 0.45
-    Primary_Sigma_da_CTE = 1.01  # Sigma G around specific particle primary particle size
-    Primary_Sigma_da_CTE_Bound = 1  # Number of Sigma G to cover
+    Primary_Sigma_da_CTE = 1  # Sigma G around specific particle primary particle size
+    Primary_Sigma_da_CTE_Bound = 2.5  # Number of Sigma G to cover
     Primary_Sigma_da_CTE_Nt = 19 + 1  # Number of bins
     Primary_Betha = 0.9
 
@@ -76,12 +77,12 @@ if __name__ == "__main__":
     ####################### Wave Parameter
 
     Wave_Length = 550 * 1e-9  # nm
-    Wave_Number = 2 * pi / Wave_Length
+    Wave_Number = 2 * pi / Wave_Length  # k
 
     ####################### Scattering Parameters
 
-    Theta_Number = 720
-    Phi_Number = 720
+    Theta_Number = 200
+    Phi_Number = 200
     Theta_Start = 0
     Theta_Finish = pi
     Phi_Start = 0
@@ -105,6 +106,9 @@ if __name__ == "__main__":
     # Diameter_Meter = []
     # Diameter_Log = []
     # Diameter_Nano = []
+    # Bound_D_Max = 1 * 10 ** (-6)
+    # Bound_D_Min = 10 * 10 ** (-9)
+    # Bound_D_Bins = 300
     # Keyhan = 10 ** 9  # Conversion factor
     # D_ratio = (Bound_D_Max / Bound_D_Min) ** (1 / (Bound_D_Bins - 1))  # Generating particle diameters
     # for i in range(Bound_D_Bins):
@@ -130,6 +134,7 @@ if __name__ == "__main__":
     Y_Label3 = "Absorption Cross Section(m^2)"
     Y_Label4 = "Absorption Efficiency"
     Y_Label5 = "Scattering Cross Section(m^2)"
+    Y_Label6 = "Sample Mass(kg)"
 
     for i in range(Sample_LogN_D_Median_Bins):
         for j in range(Sample_LogN_Sigma_Bins):
@@ -205,33 +210,26 @@ if __name__ == "__main__":
             # Scattering RDG
             # Differential
             Differential_Scattering_Cross_Section_Full = []
-            for k in range(Sample_Sigma_Bins - 1):
-                Differential_Scattering_Cross_Section_Theta = []
-                for t in range(Theta_Number):
-                    Differential_Scattering_Cross_Section_Specific_Particle_Size = 0
-                    for p in range(Primary_Sigma_da_CTE_Nt - 1):
-                        q = FN.Scattering_Wave_Vector(WaveLength_meter=Wave_Length, Theta_radian=Theta_Radian[t])
-                        Differential_Scattering_Cross_Section_Agg = FN.RDG_Def_Scattering(K=Wave_Number, N=Primary_Number_Bank[k][p], Dp=Primary_Diameter_Bank[k][p], q=q, F=Soot_FM, D_RDG=Soot_Fractal_D_mc_RDG, K_RDG=Soot_Prefactor_k_mc_RDG)
-                        Differential_Scattering_Cross_Section_Specific_Particle_Size += Differential_Scattering_Cross_Section_Agg * Primary_Probability_Bank[k][p]
-
-                    Differential_Scattering_Cross_Section_Theta.append(Differential_Scattering_Cross_Section_Specific_Particle_Size)
-
-                Differential_Scattering_Cross_Section_Full.append(Differential_Scattering_Cross_Section_Theta)
-
-            Differential_Scattering_Cross_Section_Distribution = []
             Scattering_Cross_Section_Diff = 0
             for k in range(Sample_Sigma_Bins - 1):
-
-                Differential_Integral_Theta = 0
+                # Differential_Scattering_Cross_Section_Theta = []
+                Differential_Scattering_Cross_Section_T = 0
                 for t in range(Theta_Number):
-                    Differential_Integral_Theta += Differential_Scattering_Cross_Section_Full[k][t] * sin(Theta_Radian[t]) * Theta_Diff
+                    q = FN.Scattering_Wave_Vector(WaveLength_meter=Wave_Length, Theta_radian=Theta_Radian[t])
+                    Differential_Scattering_Cross_Section_Specific_Particle_Size = 0
+                    for p in range(Primary_Sigma_da_CTE_Nt - 1):
+                        Differential_Scattering_Cross_Section_Agg = FN.RDG_Def_Scattering(K=Wave_Number, N=Primary_Number_Bank[k][p], Dp=Primary_Diameter_Bank[k][p], q=q, F=Soot_FM, D_RDG=Soot_Fractal_D_mc_RDG, K_RDG=Soot_Prefactor_k_mc_RDG, check=Primary_Probability_Bank[k][p], Number=k)
+                        Differential_Scattering_Cross_Section_Specific_Particle_Size += Differential_Scattering_Cross_Section_Agg * Primary_Probability_Bank[k][p]
 
-                Differential_Integral_Phi = Differential_Integral_Theta * (Phi_Finish - Phi_Start)
-                Differential_Scattering_Cross_Section_Distribution.append(Differential_Integral_Phi)
-                Scattering_Cross_Section_Diff += Differential_Scattering_Cross_Section_Distribution[k] * LogN_Sample_SizeDistribution[k]
+                    Differential_Scattering_Cross_Section_Specific_Particle_Size = Differential_Scattering_Cross_Section_Specific_Particle_Size * sin(Theta_Radian[t]) * Theta_Diff
+                    for phi in range(Phi_Number):
+                        Differential_Scattering_Cross_Section_T += Differential_Scattering_Cross_Section_Specific_Particle_Size * Phi_Diff
+
+                Differential_Scattering_Cross_Section_Full.append(Differential_Scattering_Cross_Section_T)
+                Scattering_Cross_Section_Diff += Differential_Scattering_Cross_Section_Full[k] * LogN_Sample_SizeDistribution[k]
 
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_ScaDiffCross" + "-" + Situation, Extension="jpg")
-            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Differential_Scattering_Cross_Section_Distribution, "Scattering Cross Section (From Differential)=\n" + str(Scattering_Cross_Section_Diff), Y_Label5, Situation)
+            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Differential_Scattering_Cross_Section_Full, "Scattering Cross Section (From Differential)=\n" + str(Scattering_Cross_Section_Diff), Y_Label5, Situation)
 
             # Total Scattering
             Scattering_Cross_Section_Total_Distribution = []
@@ -240,7 +238,7 @@ if __name__ == "__main__":
 
                 Scattering_Cross_Section_Total_Specific_Particle_Size = 0
                 for p in range(Primary_Sigma_da_CTE_Nt - 1):
-                    Scattering_Cross_Section_Total_Agg = FN.RDG_Total_Scatteing(K=Wave_Number, N=Primary_Number_Bank[k][p], Dp=Primary_Diameter_Bank[k][p], q=q, F=Soot_FM, D_RDG=Soot_Fractal_D_mc_RDG, K_RDG=Soot_Prefactor_k_mc_RDG)
+                    Scattering_Cross_Section_Total_Agg = FN.RDG_Total_Scattering(K=Wave_Number, N=Primary_Number_Bank[k][p], Dp=Primary_Diameter_Bank[k][p], F=Soot_FM, D_RDG=Soot_Fractal_D_mc_RDG, K_RDG=Soot_Prefactor_k_mc_RDG, check=Primary_Probability_Bank[k][p], Number=k)
                     Scattering_Cross_Section_Total_Specific_Particle_Size += Scattering_Cross_Section_Total_Agg * Primary_Probability_Bank[k][p]
 
                 Scattering_Cross_Section_Total_Distribution.append(Scattering_Cross_Section_Total_Specific_Particle_Size)
@@ -249,72 +247,15 @@ if __name__ == "__main__":
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_ScaTotCross" + "-" + Situation, Extension="jpg")
             FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Scattering_Cross_Section_Total_Distribution, "Scattering Cross Section (Total)=\n" + str(Scattering_Cross_Section_Total), Y_Label5, Situation)
 
-            a = 3
-            # for h in range(Phi_Number):
-
-            # Differential_Scattering_Cross_Section_Agg = FN.
-
-            # Absorption_Cross_Section_Agg, Absorption_Cross_Section_Primary = FN.RDG_Absorption(Wave_Number, Primary_Number, Primary_Diameter, Soot_EM)  # within  aggregate
-            # Absorption_Cross_Eff_1, Absorption_Cross_Primary_Eff_1 = FN.Absorption_Eff(Absorption_Cross_Section_Agg, Absorption_Cross_Section_Primary, diam[k], Primary_Diameter)
-            # Absorption_Cross_Section_Agg_Total = np.sum(Absorption_Cross_Section_Agg * Primary_Probability)
-            # Absorption_Cross_Section_Primary_Total = np.sum(Absorption_Cross_Section_Primary * Primary_Probability)
-            # Absorption_Cross_Eff_Total = np.sum(Absorption_Cross_Eff_1 * Primary_Probability)
-            # Absorption_Cross_Primary_Eff_Total = np.sum(Absorption_Cross_Primary_Eff_1 * Primary_Probability)
-            # Scattering_Cross_Section_Agg, Scattering_Cross_Section_Primary = FN.RDG_Total_Scatteing(Wave_Number, Soot_FM, Primary_Number, Primary_Diameter, Betha)  # within  aggregate
-            # Scattering_Cross_Section_Agg_Total = np.sum(Scattering_Cross_Section_Agg * Primary_Probability)
-            # Scattering_Cross_Section_Primary_Total = np.sum(Scattering_Cross_Section_Primary * Primary_Probability)
-            # Aggregate_Mass[i][j][k] = FN.Particle_Mass(FN.Effective_Density(eff_k, eff_dm, diam[k]), diam[k])
-            # # for p in range (Theta_Number):
-            # #   Differential_Scattering_Cross[i][j][k][p] = KN.RDG_Def_Scattering (Wave_Number, Theta_Radian[p], Soot_FM, Soot_Primary_Number[i][j][k], Soot_Primary_dp_median, Soot_Fractal_Df, Soot_Prefactor_kf)
-            # Total_Absorption_Cross[i][j] = Total_Absorption_Cross[i][j] + LogNormal_pdf[i][j][k] * Absorption_Cross_Section_Agg_Total * Total_Number_Concentration_Sample
-            # Total_Scattering_Cross[i][j] = Total_Scattering_Cross[i][j] + LogNormal_pdf[i][j][k] * Scattering_Cross_Section_Agg_Total * Total_Number_Concentration_Sample
-            # Total_Particle_Mass[i][j] = Total_Particle_Mass[i][j] + LogNormal_pdf[i][j][k] * Aggregate_Mass[i][j][k] * Total_Number_Concentration_Sample
-            #
-            # Absorption_Cross[i][j][k] = Absorption_Cross_Section_Agg_Total
-            # Absorption_Cross_Eff[i][j][k] = Absorption_Cross_Eff_Total
-            # Absorption_Cross_Primary[i][j][k] = Absorption_Cross_Section_Primary_Total
-            # Absorption_Cross_Primary_Eff[i][j][k] = Absorption_Cross_Primary_Eff_Total
-            # Scattering_Cross[i][j][k] = Scattering_Cross_Section_Agg_Total
-            # Scattering_Cross_Primary[i][j][k] = Scattering_Cross_Section_Primary_Total
-        # Mass_Absorption_Eff[i][j] = Total_Absorption_Cross[i][j] / Total_Particle_Mass[i][j]
-#         plt.figure(n)
-#         plt.rcParams['mathtext.fontset'] = 'stix'
-#         plt.rcParams['font.family'] = 'STIXGeneral'
-#         plt.title("Absorption and Scattering, " + "D_Median= " + str(LogNormal_D_Median_Sample[i] * 1e9) + "(nm), Sigma=" + str(LogNormal_Sigma_Sample[j]) + ", Mass Abs Eff= " + "{:.3E}".format(Mass_Absorption_Eff[i][j]) + " (m^2/kg)")
-#
-#         plt.plot(Diameter_Nano, Absorption_Cross[i][j][:], label="Tot Abs= " + "{:.3E}".format(Total_Absorption_Cross[i][j]) + "(m^2)")
-#         plt.plot(Diameter_Nano, Aggregate_Mass[i][j][:], label="Total Particle Mass (Kg)= " + "{:.3E}".format(Total_Particle_Mass[i][j]))
-#         plt.plot(Diameter_Nano, Absorption_Cross_Primary[i][j][:], label="Primary Particle Abs")
-#         plt.plot(Diameter_Nano, Scattering_Cross[i][j][:], label="Tot Sca= " + "{:.3E}".format(Total_Scattering_Cross[i][j]) + "(m^2)")
-#         plt.plot(Diameter_Nano, Scattering_Cross_Primary[i][j][:], label="Primary Particle Sca")
-#         plt.xlabel('Mobility-equivalent Diameter (nm)')
-#         plt.ylabel('Cross Section (m^2)')
-#         plt.xscale('log')
-#         plt.yscale('log')
-#         plt.grid(True, which='minor', alpha=0.2)
-#         plt.legend(bbox_to_anchor=(1.04, 0.5), loc='center left', fancybox=True, fontsize='small')
-#         GraphName = "D_Med-" + str(i) + "Sigma" + str(j) + ".jpg"
-#         plt.savefig(GraphName, format='jpg', dpi=1000, bbox_inches='tight')
-#         plt.clf()
-#         plt.close()
-#         n = n + 1
-#
-#         plt.figure(n)
-#         plt.rcParams['mathtext.fontset'] = 'stix'
-#         plt.rcParams['font.family'] = 'STIXGeneral'
-#         plt.title("Absorption Efficiency, " + "D_Median= " + str(LogNormal_D_Median_Sample[i] * 1e9) + "(nm), Sigma=" + str(LogNormal_Sigma_Sample[j]) + ", Mass Abs Eff= " + "{:.3E}".format(Mass_Absorption_Eff[i][j]) + " (m^2/kg)")
-#         plt.plot(Diameter_Nano, Absorption_Cross_Eff[i][j][:], label="Aggregate")
-#         plt.plot(Diameter_Nano, Absorption_Cross_Primary_Eff[i][j][:], label="Primary")
-#         plt.xlabel('Mobility-equivalent Diameter (nm)')
-#         plt.ylabel('Efficiency')
-#         plt.xscale('log')
-#         plt.yscale('log')
-#         plt.grid(True, which='minor', alpha=0.2)
-#         plt.legend(bbox_to_anchor=(1.04, 0.5), loc='center left', fancybox=True, fontsize='small')
-#         GraphName = "D_Med-" + str(i) + "Sigma" + str(j) + "_EFF" + ".jpg"
-#         plt.savefig(GraphName, format='jpg', dpi=1000, bbox_inches='tight')
-#         plt.clf()
-#         plt.close()
-#         n = n + 1
-#
-# a = 3
+            # MAC_MSC
+            Mass_Sample = []
+            Density = []
+            Total_Mass = 0
+            for k in range(Sample_Sigma_Bins - 1):
+                Density.append(FN.Effective_Density(K=Eff_k, Dm=Eff_dm, da=Diameter_Meter[k]))
+                Mass_Sample.append(FN.Mass_Calc(rho=Density[k], da=Diameter_Meter[k]))
+                Total_Mass += Mass_Sample[k] * LogN_Sample_SizeDistribution[k]
+            MAC = Absorption_Cross_Section / Total_Mass
+            MSC = Scattering_Cross_Section_Total / Total_Mass
+            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_Mass" + "-" + Situation, Extension="jpg")
+            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Mass_Sample, "MAC=" + str(MAC) + "\n" + "MSC=" + str(MSC), Y_Label5, Situation)

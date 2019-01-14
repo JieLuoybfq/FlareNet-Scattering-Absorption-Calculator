@@ -87,10 +87,15 @@ def Bins_LogN_Distributed(Median_Diameter, Sigma_G, Sigma_G_Bound, Total_Number_
 
 def Primary_LogN_Generator(dp_Median_meter, Sigma_g_Primary, Sigma_g_Number, Number_Points, da_meter, Soot_Prefactor_k, Soot_Fractal_D):
     try:
-
-        Dmax = dp_Median_meter * (Sigma_g_Primary ** Sigma_g_Number)
-        Dmin = dp_Median_meter * (Sigma_g_Primary ** (-1 * Sigma_g_Number))
-        Diam_total = np.linspace(Dmin, Dmax, num=Number_Points)
+        if Sigma_g_Primary != 1:
+            Dmax = dp_Median_meter * (Sigma_g_Primary ** Sigma_g_Number)
+            Dmin = dp_Median_meter * (Sigma_g_Primary ** (-1 * Sigma_g_Number))
+            Diam_total = np.linspace(Dmin, Dmax, num=Number_Points)
+        elif Sigma_g_Primary == 1:
+            Dmax = dp_Median_meter * (1.5 ** 2)
+            Dmin = dp_Median_meter * (1.5 ** (-1 * 2))
+            Diam_total = np.linspace(Dmin, Dmax, num=Number_Points)
+            k = 3
         Number_Primary = []
         Probability = []
         Sum = 0
@@ -110,8 +115,14 @@ def Primary_LogN_Generator(dp_Median_meter, Sigma_g_Primary, Sigma_g_Number, Num
 
 def LogN_Distribution(Median, SigmaG, Dp2, Dp1):  # return number between 0 to 1
     try:
+        if SigmaG != 1:
+            A = (1 / (log(SigmaG) * (2 * pi) ** 0.5)) * exp(-1 * (((log(Dp1) - log(Median)) ** 2) / (2 * (log(SigmaG)) ** 2))) * (log(Dp2) - log(Dp1))
+        elif SigmaG == 1:
+            if Dp2 > Median and Median > Dp1:
+                return 1
+            else:
+                return 0
 
-        A = (1 / (log(SigmaG) * (2 * pi) ** 0.5)) * exp(-1 * (((log(Dp1) - log(Median)) ** 2) / (2 * (log(SigmaG)) ** 2))) * (log(Dp2) - log(Dp1))
         return A
 
     except Exception as e:
@@ -119,13 +130,16 @@ def LogN_Distribution(Median, SigmaG, Dp2, Dp1):  # return number between 0 to 1
         raise
 
 
-def RDG_Def_Scattering(K, N, Dp, q, F, D_RDG, K_RDG):
+def RDG_Def_Scattering(K, N, Dp, q, F, D_RDG, K_RDG, check, Number):
     try:
 
         Monomer_Differential = F * ((Dp / 2) ** 6) * (K ** 4)
         Rg = ((N / K_RDG) ** (1 / D_RDG)) * (Dp / 2)
         S_q = RDG_Structure_Factor(q=q, Rg=Rg, D_FD=D_RDG)
         Aggregate_Differential = (N ** 2) * Monomer_Differential * S_q
+        if check == 1:
+            if Number == 194:
+                logging.debug(f"RDG_Def_Scattering---Number={Number},Monomer_Differential={Monomer_Differential},Rg={Rg},S_q={S_q},Aggregate_Differential={Aggregate_Differential}")
         return Aggregate_Differential
 
     except Exception as e:
@@ -184,13 +198,15 @@ def RDG_Absorption(K, N, Dp, E):
         raise
 
 
-def RDG_Total_Scatteing(K, N, Dp, q, F, D_RDG, K_RDG):
+def RDG_Total_Scattering(K, N, Dp, F, D_RDG, K_RDG, check, Number):
     try:
 
         Monomer_Total = (8 / 3) * pi * (K ** 4) * ((Dp / 2) ** 6) * F
         Rg = ((N / K_RDG) ** (1 / D_RDG)) * (Dp / 2)
         G = (1 + ((4 / (3 * D_RDG)) * ((K * Rg) ** 2))) ** (-0.5 * D_RDG)
         Aggregate_Total = (N ** 2) * Monomer_Total * G
+        if check == 1:
+            logging.debug(f"RDG_Total_Scattering---Number={Number},Monomer_Total={Monomer_Total},Rg={Rg},G={G},Aggregate_Total={Aggregate_Total}")
         return Aggregate_Total
 
     except Exception as e:
@@ -198,10 +214,10 @@ def RDG_Total_Scatteing(K, N, Dp, q, F, D_RDG, K_RDG):
         raise
 
 
-def Effective_Density(K, Dm, dp):
+def Effective_Density(K, Dm, da):
     try:
 
-        A = K * dp ** (Dm - 3)
+        A = K * da ** (Dm - 3)
         return A
 
     except Exception as e:
@@ -220,7 +236,7 @@ def Differential_Solid_Angle(Phi_radian, Theta_Diff, Phi_Diff):
         raise
 
 
-def Particle_Mass(rho, da):
+def Mass_Calc(rho, da):
     try:
 
         A = rho * pi * (da ** 3) / 6
