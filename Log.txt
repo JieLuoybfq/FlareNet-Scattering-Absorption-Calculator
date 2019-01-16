@@ -1,1 +1,7 @@
-01/16/2019 08:05:32 AM, Program Started!
+01/16/2019 08:50:51 AM, Program Started!
+01/16/2019 08:50:51 AM, Program Initiated!
+01/16/2019 08:50:51 AM, Labels Created!
+01/16/2019 08:50:51 AM, Sample's particle diameter generated
+01/16/2019 08:51:49 AM, Sample's particle diameter generated
+01/16/2019 08:52:53 AM, Sample's particle diameter generated
+01/16/2019 08:53:53 AM, Sample's particle diameter generated
