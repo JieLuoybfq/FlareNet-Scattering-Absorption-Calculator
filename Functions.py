@@ -44,6 +44,7 @@ def Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, X_Array, X_Label, Y_array, Y_Le
         plt.savefig(Address, format='jpg', dpi=Figure_DPI, bbox_inches='tight')
         plt.clf()
         plt.close()
+
     except Exception as e:
         logging.exception(e)
         raise
@@ -51,6 +52,7 @@ def Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, X_Array, X_Label, Y_array, Y_Le
 
 def Fig_Plot_Save_1Lines_X_Log_Y_Log(Address, X_Array, X_Label, Y_array, Ybottom, YTop, Y_Legend, Y_label1, Plot_Title, label_font_size=12, Plot_Title_Size=12, Figure_DPI=1200, alpha=0.3, Marker_Size=3):
     try:
+
         fig, ax1 = plt.subplots()
         plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
@@ -194,6 +196,7 @@ def Scattering_Wave_Vector(WaveLength_meter, Theta_radian):
 
 def RDG_Structure_Factor(q, Rg, D_RDG, K_RDG, Formula=1, C=1):
     try:
+
         if Formula == 1:  # Sorensen 2001
             C = 1.35 / K_RDG
             Check = q * Rg
@@ -238,6 +241,7 @@ def RDG_Absorption(K, N, Dp, E):
 
 def RDG_Total_Scattering(K, N, Dp, F, D_RDG, K_RDG, Formula=1):
     try:
+
         if Formula == 1:  # Sorensen 2001
             Monomer_Total = (8 / 3) * pi * (K ** 4) * ((Dp / 2) ** 6) * F
             Rg = ((N / K_RDG) ** (1 / D_RDG)) * (Dp / 2)

@@ -5,12 +5,7 @@ import Functions as FN
 import os
 import numpy as np
 from math import pi
-from math import log
 from math import sin
-from math import cos
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
 import logging
 
 ####### Logging Parameters
