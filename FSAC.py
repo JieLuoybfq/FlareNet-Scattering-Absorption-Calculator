@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     ####################### Particle Sample Setting
 
-    Sample_Total_Number_Concentration = 1  # /cm^3
+    Sample_Total_Number_Concentration = 100  # /cm^3
     Sample_LogN_D_Median_Min = 200  # Smallest diameter of computation (nm)
     Sample_LogN_D_Median_Max = 550  # Largest diameter of computation (nm)
     Sample_LogN_D_Median_Bins = 2  # Number of the Steps
@@ -43,9 +43,8 @@ if __name__ == "__main__":
 
     ####################### Varation of Primary Particle Size within the sample
 
-    # Primary_Diameter_100nm = 16.48 * 1e-9  # Primary particle diameter of 100 nm aggregate
-    # Primary_D_TEM = 0.45
-    Primary_D_TEM = 0
+    Primary_Diameter_100nm = 16.48 * 1e-9  # Primary particle diameter of 100 nm aggregate
+    Primary_D_TEM = 0.45
     Primary_Sigma_da_CTE = 1  # Sigma G around specific particle primary particle size
     Primary_Sigma_da_CTE_Bound = 2.5  # Number of Sigma G to cover
     Primary_Sigma_da_CTE_Nt = 19 + 1  # Number of bins
@@ -79,7 +78,7 @@ if __name__ == "__main__":
 
     Wave_Length = 1064 * 1e-9  # nm
     Wave_Number = 2 * pi / Wave_Length  # k
-    Primary_Diameter_100nm = 0.0886 * Wave_Length / pi
+
     ####################### Scattering Parameters
 
     Theta_Number = 200
@@ -104,46 +103,21 @@ if __name__ == "__main__":
 
     #######################
 
-    Diameter_Meter = []
-    Diameter_Log = []
-    Diameter_Nano = []
-    Bound_D_Max = 1000 * 10 ** (-9)
-    Bound_D_Min = 30 * 10 ** (-9)
-    Bound_D_Bins = 300
-    Keyhan = 10 ** 9  # Conversion factor
-    D_ratio = (Bound_D_Max / Bound_D_Min) ** (1 / (Bound_D_Bins - 1))  # Generating particle diameters
-    for i in range(Bound_D_Bins):
-        d = Bound_D_Min * D_ratio ** (i)
-        Diameter_Meter.append(d)
-        Diameter_Log.append(log(d))
-        Diameter_Nano.append(d * Keyhan)
+    # Diameter_Meter = []
+    # Diameter_Log = []
+    # Diameter_Nano = []
+    # Bound_D_Max = 1000 * 10 ** (-9)
+    # Bound_D_Min = 30 * 10 ** (-9)
+    # Bound_D_Bins = 300
+    # Keyhan = 10 ** 9  # Conversion factor
+    # D_ratio = (Bound_D_Max / Bound_D_Min) ** (1 / (Bound_D_Bins - 1))  # Generating particle diameters
+    # for i in range(Bound_D_Bins):
+    #     d = Bound_D_Min * D_ratio ** (i)
+    #     Diameter_Meter.append(d)
+    #     Diameter_Log.append(log(d))
+    #     Diameter_Nano.append(d * Keyhan)
 
     #######################
-
-    # Test
-    Test_Np = [5, 10, 20, 50, 100, 150, 199, 348, 546, 893]
-    Test_Wave1 = 532 * 10 ** (-9)
-    Test_Wave2 = 1064 * 10 ** (-9)
-    Test_Wave_Number1 = 2 * pi / Test_Wave1  # k
-    Test_Wave_Number2 = 2 * pi / Test_Wave2  # k
-    Test_Primary_Diameter1 = 0.177 * Test_Wave1 / pi
-    Test_Primary_Diameter2 = 0.0886 * Test_Wave2 / pi
-    Test_Soot_Prefactor_k_mc_RDG = 2.3
-    Test_Soot_Fractal_D_mc_RDG = 1.78
-    Test_Soot_Refractive_Index = 1.6 - 0.6j
-    Test_Soot_Complex = (((Test_Soot_Refractive_Index ** 2) - 1) / ((Test_Soot_Refractive_Index ** 2) + 2))
-    Test_Soot_FM = (abs(Test_Soot_Complex)) ** 2
-    Test_Soot_EM = Test_Soot_Complex.imag
-    Test_Absorption_Cross_Section_Agg1 = []
-    Test_Absorption_Cross_Section_Agg2 = []
-    Test_Scattering_Cross_Section_Agg1 = []
-    Test_Scattering_Cross_Section_Agg2 = []
-    for i in range(len(Test_Np)):
-        Test_Absorption_Cross_Section_Agg1.append((10 ** 18) * FN.RDG_Absorption(K=Test_Wave_Number1, N=Test_Np[i], Dp=Test_Primary_Diameter1, E=Test_Soot_EM))
-        Test_Absorption_Cross_Section_Agg2.append((10 ** 18) * FN.RDG_Absorption(K=Test_Wave_Number2, N=Test_Np[i], Dp=Test_Primary_Diameter2, E=Test_Soot_EM))
-        Test_Scattering_Cross_Section_Agg1.append((10 ** 18) * FN.RDG_Total_Scattering(K=Test_Wave_Number1, N=Test_Np[i], Dp=Test_Primary_Diameter1, F=Test_Soot_FM, D_RDG=Test_Soot_Fractal_D_mc_RDG, K_RDG=Test_Soot_Prefactor_k_mc_RDG, Formula=2))
-        Test_Scattering_Cross_Section_Agg2.append((10 ** 18) * FN.RDG_Total_Scattering(K=Test_Wave_Number2, N=Test_Np[i], Dp=Test_Primary_Diameter2, F=Test_Soot_FM, D_RDG=Test_Soot_Fractal_D_mc_RDG, K_RDG=Test_Soot_Prefactor_k_mc_RDG, Formula=2))
-
     # Total_Absorption_Cross = [[0 for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
     # Scattering_Cross = [[[0 for k in range(Nd)] for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
     # Scattering_Cross_Primary = [[[0 for k in range(Nd)] for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
@@ -164,7 +138,7 @@ if __name__ == "__main__":
     for i in range(Sample_LogN_D_Median_Bins):
         for j in range(Sample_LogN_Sigma_Bins):
 
-            # Diameter_Meter, Diameter_Log, Diameter_Nano = FN.Bins_LogN_Distributed(Median_Diameter=Sample_D_Median_List[i] * 10 ** (-9), Sigma_G=Sample_Sigma_List[j], Sigma_G_Bound=Sample_Sigma_Bound, Total_Number_Bins=Sample_Sigma_Bins)
+            Diameter_Meter, Diameter_Log, Diameter_Nano = FN.Bins_LogN_Distributed(Median_Diameter=Sample_D_Median_List[i] * 10 ** (-9), Sigma_G=Sample_Sigma_List[j], Sigma_G_Bound=Sample_Sigma_Bound, Total_Number_Bins=Sample_Sigma_Bins)
             LogN_Sample_SizeDistribution_Plain = []
             LogN_Sample_SizeDistribution = []
 
@@ -243,7 +217,7 @@ if __name__ == "__main__":
                     q = FN.Scattering_Wave_Vector(WaveLength_meter=Wave_Length, Theta_radian=Theta_Radian[t])
                     Differential_Scattering_Cross_Section_Specific_Particle_Size = 0
                     for p in range(Primary_Sigma_da_CTE_Nt - 1):
-                        Differential_Scattering_Cross_Section_Agg = FN.RDG_Def_Scattering(K=Wave_Number, N=Primary_Number_Bank[k][p], Dp=Primary_Diameter_Bank[k][p], q=q, F=Soot_FM, D_RDG=Soot_Fractal_D_mc_RDG, K_RDG=Soot_Prefactor_k_mc_RDG, check=Primary_Probability_Bank[k][p], Number=k)
+                        Differential_Scattering_Cross_Section_Agg = FN.RDG_Def_Scattering(K=Wave_Number, N=Primary_Number_Bank[k][p], Dp=Primary_Diameter_Bank[k][p], q=q, F=Soot_FM, D_RDG=Soot_Fractal_D_mc_RDG, K_RDG=Soot_Prefactor_k_mc_RDG)
                         Differential_Scattering_Cross_Section_Specific_Particle_Size += Differential_Scattering_Cross_Section_Agg * Primary_Probability_Bank[k][p]
 
                     Differential_Scattering_Cross_Section_Specific_Particle_Size = Differential_Scattering_Cross_Section_Specific_Particle_Size * sin(Theta_Radian[t]) * Theta_Diff

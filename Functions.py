@@ -3,6 +3,7 @@ from math import exp
 from math import pi
 from math import log
 from math import sin
+from math import cos
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
@@ -33,9 +34,31 @@ def Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, X_Array, X_Label, Y_array, Y_Le
         fig, ax1 = plt.subplots()
         plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
-        ax1.plot(X_Array, Y_array, 'r*', label=Y_Legend, alpha=0.8, markersize=Marker_Size)
+        ax1.plot(X_Array, Y_array, 'r-', label=Y_Legend, alpha=0.8, markersize=Marker_Size)
         ax1.set_xlabel(X_Label, fontsize=label_font_size)
         ax1.set_xscale("log")
+        ax1.set_ylabel(Y_label1, fontsize=label_font_size)
+        ax1.grid(True, which='major', axis="both", alpha=0.5)
+        ax1.legend(bbox_to_anchor=(0.5, 0.67), loc='center left', fontsize='large')
+        plt.title(Plot_Title, fontsize=Plot_Title_Size)
+        plt.savefig(Address, format='jpg', dpi=Figure_DPI, bbox_inches='tight')
+        plt.clf()
+        plt.close()
+    except Exception as e:
+        logging.exception(e)
+        raise
+
+
+def Fig_Plot_Save_1Lines_X_Log_Y_Log(Address, X_Array, X_Label, Y_array, Ybottom, YTop, Y_Legend, Y_label1, Plot_Title, label_font_size=12, Plot_Title_Size=12, Figure_DPI=1200, alpha=0.3, Marker_Size=3):
+    try:
+        fig, ax1 = plt.subplots()
+        plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+        ax1.plot(X_Array, Y_array, 'r-', label=Y_Legend, alpha=0.8, markersize=Marker_Size)
+        ax1.set_xlabel(X_Label, fontsize=label_font_size)
+        ax1.set_xscale("log")
+        ax1.set_yscale("log")
+        ax1.set_ylim(Ybottom, YTop)
         ax1.set_ylabel(Y_label1, fontsize=label_font_size)
         ax1.grid(True, which='major', axis="both", alpha=0.5)
         ax1.legend(bbox_to_anchor=(0.5, 0.67), loc='center left', fontsize='large')
@@ -54,6 +77,19 @@ def Number_Primary_Particle(da_meter, dp_meter, Soot_Prefactor_k, Soot_Fractal_D
 
         A = ((da_meter / dp_meter) / Soot_Prefactor_k) ** (1 / Soot_Fractal_D)
         return round(A)
+
+    except Exception as e:
+        logging.exception(e)
+        raise
+
+
+def Diff_Integral_Phi(Scattered_Theta, Phi_Radian, Theta_Rad, Theta_Diff, Phi_Diff, Formula=1):
+    try:
+
+        A = 0
+        for phi in range(len(Phi_Radian)):
+            A += Scattered_Theta * sin(Theta_Rad) * Theta_Diff * Phi_Diff * (1 - (((cos(Phi_Radian[phi])) * sin(Theta_Rad)) ** 2))
+        return A
 
     except Exception as e:
         logging.exception(e)
@@ -148,7 +184,6 @@ def RDG_Def_Scattering(K, N, Dp, q, F, D_RDG, K_RDG, Formula=1):
 
 def Scattering_Wave_Vector(WaveLength_meter, Theta_radian):
     try:
-
         A = (4 * pi / WaveLength_meter) * sin(Theta_radian / 2)
         return A
 
