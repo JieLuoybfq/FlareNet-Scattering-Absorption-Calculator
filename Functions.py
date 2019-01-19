@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from pathlib import Path
 import os
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 ####### Plotting Parameters
 rcParams['mathtext.fontset'] = 'stix'
@@ -74,6 +76,24 @@ def Fig_Plot_Save_1Lines_X_Log_Y_Log(Address, X_Array, X_Label, Y_array, Ybottom
         raise
 
 
+def Fig_Plot_3D_Show_XCte(X, Y_2D, Z_2D):
+    try:
+
+        fig, ax = plt.subplots()
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        for i in range(len(X)):
+            dummy = []
+            for p in range(len(Y_2D[i])):
+                dummy.append(X[i])
+            ax.plot(dummy, Y_2D[i][:], Z_2D[i][:])
+        plt.show()
+    except Exception as e:
+        logging.exception(e)
+        raise
+
+
 def Number_Primary_Particle(da_meter, dp_meter, Soot_Prefactor_k, Soot_Fractal_D):
     try:
 
@@ -113,7 +133,7 @@ def Bins_LogN_Distributed(Median_Diameter, Sigma_G, Sigma_G_Bound, Total_Number_
         for i in range(0, Total_Number_Bins):
             d1 = Bound_D_Min * (D_Ratio ** i)
             Diameter_Meter.append(d1)
-            Diameter_Log.append(log(d1))
+            Diameter_Log.append(log(d1 * Keyhan))
             Diameter_Nano.append(d1 * Keyhan)
 
         return sorted(Diameter_Meter, key=float), sorted(Diameter_Log, key=float), sorted(Diameter_Nano, key=float)

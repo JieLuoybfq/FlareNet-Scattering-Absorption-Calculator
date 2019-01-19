@@ -1,11 +1,11 @@
 # Programmed by Keyhan Babaee Under Prof. Steven Rogak supervision, https://github.com/KeyhanB
-# Version 0.4
-# Jan 2, 2018
+# Version 1.2
+# Jan 18, 2018
 import Functions as FN
 import os
 import numpy as np
 from math import pi
-from math import sin
+
 import logging
 
 ####### Logging Parameters
@@ -26,19 +26,19 @@ if __name__ == "__main__":
 
     ####################### Particle Sample Setting
 
-    Sample_Total_Number_Concentration = 100  # /cm^3
-    Sample_LogN_D_Median_Min = 200  # Smallest diameter of computation (nm)
+    Sample_Total_Number_Concentration = 500  # /cm^3
+    Sample_LogN_D_Median_Min = 150  # Smallest diameter of computation (nm)
     Sample_LogN_D_Median_Max = 550  # Largest diameter of computation (nm)
     Sample_LogN_D_Median_Bins = 2  # Number of the Steps
-    Sample_LogN_Sigma_Min = 1.2  # Smallest Sigma G
-    Sample_LogN_Sigma_Max = 1.7  # Largest Sigma G
+    Sample_LogN_Sigma_Min = 1.1  # Smallest Sigma G
+    Sample_LogN_Sigma_Max = 1.8  # Largest Sigma G
     Sample_LogN_Sigma_Bins = 2  # Number of the Steps
     Sample_Sigma_Bound = 2.75  # Number of Sigma G to cover
-    Sample_Sigma_Bins = 300  # Number of bins
+    Sample_Sigma_Bins = 250  # Number of bins
 
     ####################### Varation of Primary Particle Size within the sample
 
-    Primary_Diameter_100nm = 16.48 * 1e-9  # Primary particle diameter of 100 nm aggregate
+    Primary_Diameter_100nm = 25 * 1e-9  # Primary particle diameter of 100 nm aggregate
     Primary_D_TEM = 0.45
     Primary_Sigma_da_CTE = 1.3  # Sigma G around specific particle primary particle size
     Primary_Sigma_da_CTE_Bound = 2.5  # Number of Sigma G to cover
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     ####################### Refractive Index
 
-    Soot_Refractive_Index = 1.6 - 0.6j  # Complex refractive index
+    Soot_Refractive_Index = 1.8 - 0.9j  # Complex refractive index
     Soot_Primary_Agg_dp_sigma = 1  # Geometric std of primary particles within aggregate
 
     ####################### Continuum regime
@@ -66,18 +66,19 @@ if __name__ == "__main__":
 
     ####################### Effective Density
 
-    Eff_k = 0.418  # effective density variable for the result to be in kg/m^3
+    Eff_k = 0.35  # effective density variable for the result to be in kg/m^3
     Eff_dm = 2.56  # effective density variable for the result to be in kg/m^3
+    Soot_Rho_Cte = 1200
 
     ####################### Wave Parameter
 
-    Wave_Length = 880 * 1e-9  # nm
+    Wave_Length = 550 * 1e-9  # nm
     Wave_Number = 2 * pi / Wave_Length  # k
 
     ####################### Scattering Parameters
 
-    Theta_Number = 300
-    Phi_Number = 300
+    Theta_Number = 200
+    Phi_Number = 200
     Theta_Start = 0
     Theta_Finish = pi
     Phi_Start = 0
@@ -96,6 +97,7 @@ if __name__ == "__main__":
     Sample_Sigma_List = np.linspace(Sample_LogN_Sigma_Min, Sample_LogN_Sigma_Max, num=Sample_LogN_Sigma_Bins)
     Sample_D_Median_List = np.linspace(Sample_LogN_D_Median_Min, Sample_LogN_D_Median_Max, num=Sample_LogN_D_Median_Bins)
     logging.info("Program Initiated!")
+
     #######################
 
     # Diameter_Meter = []
@@ -113,12 +115,7 @@ if __name__ == "__main__":
     #     Diameter_Nano.append(d * Keyhan)
 
     #######################
-    # Total_Absorption_Cross = [[0 for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
-    # Scattering_Cross = [[[0 for k in range(Nd)] for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
-    # Scattering_Cross_Primary = [[[0 for k in range(Nd)] for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
-    # Total_Scattering_Cross = [[0 for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
-    # Differential_Scattering_Cross = [[[[0 for p in range(Theta_Number)] for k in range(Nd)] for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
-    # Aggregate_Mass = [[[0 for k in range(Nd)] for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
+
     # Total_Particle_Mass = [[0 for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
     # Mass_Absorption_Eff = [[0 for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
 
@@ -138,16 +135,19 @@ if __name__ == "__main__":
             LogN_Sample_SizeDistribution_Plain = []
             LogN_Sample_SizeDistribution = []
 
-            Situation = f"Med={round(Sample_D_Median_List[i], 2)}-Sig={round(Sample_Sigma_List[j], 2)}"
-            # SUM=0
-            # SUM1 = 1
-            logging.info("Sample's particle diameter generated")
+            Situation = f"Median={round(Sample_D_Median_List[i], 2)}-Sigma={round(Sample_Sigma_List[j], 2)}"
+            SUM = 0
+            SUM1 = 0
+            logging.info(f"Sample's particle bins generated:{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {Diameter_Nano}")
             # Number Concentration
             for k in range(Sample_Sigma_Bins - 1):
                 LogN_Sample_SizeDistribution_Plain.append(FN.LogN_Distribution(Median=Sample_D_Median_List[i], SigmaG=Sample_Sigma_List[j], Dp2=Diameter_Nano[k + 1], Dp1=Diameter_Nano[k]))
                 LogN_Sample_SizeDistribution.append(LogN_Sample_SizeDistribution_Plain[k] * Sample_Total_Number_Concentration)
-                # SUM+=LogN_Sample_SizeDistribution_Plain[k]
-                # SUM1+=LogN_Sample_SizeDistribution[k]
+                SUM += LogN_Sample_SizeDistribution_Plain[k]
+                SUM1 += LogN_Sample_SizeDistribution[k]
+
+            logging.info(f"Sample's particle bins populated:{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {LogN_Sample_SizeDistribution_Plain}")
+            logging.info(f"LogNormal Check:{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {SUM}: {SUM1}")
 
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_NC" + "-" + Situation, Extension="jpg")
             FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, LogN_Sample_SizeDistribution, "Number Concentration,\nTotal Conc.= " + str(round(Sample_Total_Number_Concentration, 1)), Y_Label1, Situation)
@@ -157,6 +157,7 @@ if __name__ == "__main__":
             for k in range(Sample_Sigma_Bins - 1):
                 Soot_Primary_Diameter_Median_meter.append(FN.Primary_Particle_Size_meter(da_meter=Diameter_Meter[k], dp100_meter=Primary_Diameter_100nm, Dtem=Primary_D_TEM))
 
+            logging.info(f"Primary Particle Diameter(m):{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {Soot_Primary_Diameter_Median_meter}")
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_PPS" + "-" + Situation, Extension="jpg")
             FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Soot_Primary_Diameter_Median_meter, "Primary Particle Size", Y_Label2, Situation)
 
@@ -165,21 +166,22 @@ if __name__ == "__main__":
             Primary_Number_Bank = []
             Primary_Probability_Bank = []
 
-            # fig, ax = plt.subplots()
-            # fig = plt.figure()
-            # ax = fig.add_subplot(111, projection='3d')
-
+            #
+            SUM2 = []
             for k in range(Sample_Sigma_Bins - 1):
+                SUM_Temp = 0
                 Primary_Diameter, Primary_Number, Primary_Probability = FN.Primary_LogN_Generator(dp_Median_meter=Soot_Primary_Diameter_Median_meter[k], Sigma_g_Primary=Primary_Sigma_da_CTE, Sigma_g_Number=Primary_Sigma_da_CTE_Bound, Number_Points=Primary_Sigma_da_CTE_Nt, da_meter=Diameter_Meter[k], Soot_Prefactor_k=Soot_Prefactor_k_mc,
                                                                                                   Soot_Fractal_D=Soot_Fractal_D_mc)
                 Primary_Diameter_Bank.append(Primary_Diameter)
                 Primary_Number_Bank.append(Primary_Number)
                 Primary_Probability_Bank.append(Primary_Probability)
-            #     dummy = []
-            #     for p in range(Primary_Sigma_da_CTE_Nt - 1):
-            #         dummy.append(Diameter_Nano[k])
-            #     ax.plot(dummy, Primary_Diameter_Bank[k][:], Primary_Probability_Bank[k][:])
-            # plt.show()
+                for m in range(len(Primary_Probability)):
+                    SUM_Temp += Primary_Probability[m]
+                SUM2.append(SUM_Temp)
+                logging.debug(f"Primary Particle Diameter(m):{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {Primary_Diameter}")
+                logging.debug(f"Primary Particle Number:{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {Primary_Number}")
+            # FN.Fig_Plot_3D_Show_XCte(Diameter_Nano[:-1], Primary_Diameter_Bank, Primary_Probability_Bank)
+            logging.info(f"Primary Particle Probability Check:{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {SUM2}")
 
             # Absorption RDG
             Absorption_Cross_Section_Sample = []
@@ -251,16 +253,30 @@ if __name__ == "__main__":
 
             # MAC_MSC
             Mass_Sample_Eff = []
+            Mass_Sample_Rho_Cte = []
             Density = []
             Total_Mass_Eff = 0
+            Total_Mass_Rho_Cte = 0
+
             for k in range(Sample_Sigma_Bins - 1):
                 Density.append(FN.Effective_Density(K=Eff_k, Dm=Eff_dm, da=Diameter_Meter[k]))
                 Mass_Sample_Eff.append(FN.Mass_Calc(rho=Density[k], da=Diameter_Meter[k]))
+                Mass_Sample_Rho_Cte.append(FN.Mass_Calc(rho=Soot_Rho_Cte, da=Diameter_Meter[k]))
                 Total_Mass_Eff += Mass_Sample_Eff[k] * LogN_Sample_SizeDistribution[k]
+                Total_Mass_Rho_Cte += Mass_Sample_Rho_Cte[k] * LogN_Sample_SizeDistribution[k]
+
             Total_Mass_Eff = Total_Mass_Eff * 1000  # kg to g
+            Total_Mass_Rho_Cte = Total_Mass_Rho_Cte * 1000
             MAC = Absorption_Cross_Section / Total_Mass_Eff
             MSC = Scattering_Cross_Section_Total / Total_Mass_Eff
             MSC_Diff = Scattering_Cross_Section_Diff_Tot / Total_Mass_Eff
+
+            MAC_Rho_Cte = Absorption_Cross_Section / Total_Mass_Rho_Cte
+            MSC_Rho_Cte = Scattering_Cross_Section_Total / Total_Mass_Rho_Cte
+            MSC_Diff_Rho_Cte = Scattering_Cross_Section_Diff_Tot / Total_Mass_Rho_Cte
+
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_Mass" + "-" + Situation, Extension="jpg")
             FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Mass_Sample_Eff, "MAC=" + str(round(MAC, 2)) + "\n" + "MSC=" + str(round(MSC, 2)) + "\n" + "MSC-Diff=" + str(round(MSC_Diff, 2)), Y_Label6, Situation)
-            a = 3
+
+            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_Mass_Rho_Cte" + "-" + Situation, Extension="jpg")
+            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Mass_Sample_Rho_Cte, "MAC=" + str(round(MAC_Rho_Cte, 2)) + "\n" + "MSC=" + str(round(MSC_Rho_Cte, 2)) + "\n" + "MSC-Diff=" + str(round(MSC_Diff_Rho_Cte, 2)), Y_Label6, Situation)
