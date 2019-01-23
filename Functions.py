@@ -30,19 +30,26 @@ def Primary_Particle_Size_meter(da_meter, dp100_meter, Dtem):
         raise
 
 
-def Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, X_Array, X_Label, Y_array, Y_Legend, Y_label1, Plot_Title, label_font_size=12, Plot_Title_Size=12, Figure_DPI=1200, alpha=0.3, Marker_Size=3):
+def Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, X_Array, Y_array, X_Min=None, X_Max=None, Y_Min=None, Y_Max=None, X_Label=None, Y_Legend=None, Y_label1=None, Plot_Title=None, label_font_size=12, Plot_Title_Size=12, Figure_DPI=1200, alpha_Y=0.9, Marker_Size=3):
     try:
 
         fig, ax1 = plt.subplots()
         plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
-        ax1.plot(X_Array, Y_array, 'r-', label=Y_Legend, alpha=0.8, markersize=Marker_Size)
-        ax1.set_xlabel(X_Label, fontsize=label_font_size)
+        ax1.plot(X_Array, Y_array, 'r-', label=Y_Legend, alpha=alpha_Y, markersize=Marker_Size)
+        if X_Label != None:
+            ax1.set_xlabel(X_Label, fontsize=label_font_size)
+        if X_Min != None and X_Max != None:
+            ax1.set_xlim(X_Min, X_Max)
+        if Y_Min != None and Y_Max != None:
+            ax1.set_ylim(Y_Min, Y_Max)
         ax1.set_xscale("log")
-        ax1.set_ylabel(Y_label1, fontsize=label_font_size)
+        if Y_label1 != None:
+            ax1.set_ylabel(Y_label1, fontsize=label_font_size)
         ax1.grid(True, which='major', axis="both", alpha=0.5)
         ax1.legend(bbox_to_anchor=(0.5, 0.67), loc='center left', fontsize='large')
-        plt.title(Plot_Title, fontsize=Plot_Title_Size)
+        if Plot_Title != None:
+            plt.title(Plot_Title, fontsize=Plot_Title_Size)
         plt.savefig(Address, format='jpg', dpi=Figure_DPI, bbox_inches='tight')
         plt.clf()
         plt.close()

@@ -28,15 +28,16 @@ if __name__ == "__main__":
 
     Sample_Total_Number_Concentration = 500  # /cm^3
     Sample_LogN_D_Median_Min = 150  # Smallest diameter of computation (nm)
-    Sample_LogN_D_Median_Max = 550  # Largest diameter of computation (nm)
+    Sample_LogN_D_Median_Max = 350  # Largest diameter of computation (nm)
     Sample_LogN_D_Median_Bins = 2  # Number of the Steps
     Sample_LogN_Sigma_Min = 1.1  # Smallest Sigma G
     Sample_LogN_Sigma_Max = 1.8  # Largest Sigma G
     Sample_LogN_Sigma_Bins = 2  # Number of the Steps
     Sample_Sigma_Bound = 2.75  # Number of Sigma G to cover
     Sample_Sigma_Bins = 250  # Number of bins
-
-    ####################### Varation of Primary Particle Size within the sample
+    Sample_Diameter_Min = 20  # in nm
+    Sample_Diameter_Max = 2000  # in nm
+    ####################### Variation of Primary Particle Size within the sample
 
     Primary_Diameter_100nm = 25 * 1e-9  # Primary particle diameter of 100 nm aggregate
     Primary_D_TEM = 0.45
@@ -44,7 +45,8 @@ if __name__ == "__main__":
     Primary_Sigma_da_CTE_Bound = 2.5  # Number of Sigma G to cover
     Primary_Sigma_da_CTE_Nt = 19 + 1  # Number of bins
     Primary_Betha = 0.9
-
+    Primary_Y_Min = 5  # in nm
+    Primary_Y_Max = 50  # in nm
     ####################### Refractive Index
 
     Soot_Refractive_Index = 1.8 - 0.9j  # Complex refractive index
@@ -121,7 +123,7 @@ if __name__ == "__main__":
 
     X_Label1 = 'Mobility-equivalent Diameter (nm)'
     Y_Label1 = 'dN/dLogDp, (#/cm' + "$^{}$".format(3) + ')'
-    Y_Label2 = "Primary Particle Diameter-dp(m)"
+    Y_Label2 = "Primary Particle Diameter-dp(nm)"
     Y_Label3 = "Absorption Cross Section(m^2)"
     Y_Label4 = "Absorption Efficiency"
     Y_Label5 = "Scattering Cross Section(m^2)"
@@ -150,16 +152,18 @@ if __name__ == "__main__":
             logging.info(f"LogNormal Check:{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {SUM}: {SUM1}")
 
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_NC" + "-" + Situation, Extension="jpg")
-            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, LogN_Sample_SizeDistribution, "Number Concentration,\nTotal Conc.= " + str(round(Sample_Total_Number_Concentration, 1)), Y_Label1, Situation)
+            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=LogN_Sample_SizeDistribution, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_Legend="Number Concentration,\nTotal Conc.= " + str(round(Sample_Total_Number_Concentration, 1)), Y_label1=Y_Label1, Plot_Title=Situation)
 
             # Primary Particle Size
+
             Soot_Primary_Diameter_Median_meter = []
+            Soot_Primary_Diameter_Median_Nano = []
             for k in range(Sample_Sigma_Bins - 1):
                 Soot_Primary_Diameter_Median_meter.append(FN.Primary_Particle_Size_meter(da_meter=Diameter_Meter[k], dp100_meter=Primary_Diameter_100nm, Dtem=Primary_D_TEM))
-
-            logging.info(f"Primary Particle Diameter(m):{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {Soot_Primary_Diameter_Median_meter}")
+                Soot_Primary_Diameter_Median_Nano.append(Soot_Primary_Diameter_Median_meter[k] * 10 ** 9)
+            logging.info(f"Primary Particle Diameter(m):{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {Soot_Primary_Diameter_Median_Nano}")
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_PPS" + "-" + Situation, Extension="jpg")
-            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Soot_Primary_Diameter_Median_meter, "Primary Particle Size", Y_Label2, Situation)
+            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Soot_Primary_Diameter_Median_Nano, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, Y_Min=Primary_Y_Min, Y_Max=Primary_Y_Max, X_Label=X_Label1, Y_Legend="Primary Particle Size", Y_label1=Y_Label2, Plot_Title=Situation)
 
             # Finding Primary Particle Number and Size
             Primary_Diameter_Bank = []
@@ -198,7 +202,7 @@ if __name__ == "__main__":
                 Absorption_Cross_Section += ABS
 
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_AbsCross" + "-" + Situation, Extension="jpg")
-            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Absorption_Cross_Section_Sample, "Absorption Cross Section=\n" + str(round(Absorption_Cross_Section * 10 ** 18)) + " nm^2", Y_Label3, Situation)
+            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Sample_Diameter_Min, Sample_Diameter_Max, Absorption_Cross_Section_Sample, "Absorption Cross Section=\n" + str(round(Absorption_Cross_Section * 10 ** 18)) + " nm^2", Y_Label3, Situation)
 
             Absorption_Efficiency_Sample = []
 
@@ -206,7 +210,7 @@ if __name__ == "__main__":
                 Absorption_Efficiency_Sample.append(FN.Absorption_Eff(Abs_Cross=Absorption_Cross_Section_Sample[k], da=Diameter_Meter[k]))
 
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_AbsEff" + "-" + Situation, Extension="jpg")
-            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Absorption_Efficiency_Sample, "Absorption Efficiency", Y_Label4, Situation)
+            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Sample_Diameter_Min, Sample_Diameter_Max, Absorption_Efficiency_Sample, "Absorption Efficiency", Y_Label4, Situation)
 
             # Scattering RDG
             # Differential
@@ -232,7 +236,7 @@ if __name__ == "__main__":
                 Scattering_Cross_Section_Diff_Tot += Diff_Scatter
 
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_ScaDiffCross" + "-" + Situation, Extension="jpg")
-            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Differential_Scattering_Cross_Section_Full, "Scattering Cross Section (Differential)=\n" + str(round(Scattering_Cross_Section_Diff_Tot * 10 ** 18)) + " nm^2", Y_Label5, Situation)
+            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Sample_Diameter_Min, Sample_Diameter_Max, Differential_Scattering_Cross_Section_Full, "Scattering Cross Section (Differential)=\n" + str(round(Scattering_Cross_Section_Diff_Tot * 10 ** 18)) + " nm^2", Y_Label5, Situation)
 
             # Total Scattering
             Scattering_Cross_Section_Total_Distribution = []
@@ -249,7 +253,7 @@ if __name__ == "__main__":
                 Scattering_Cross_Section_Total += Total_Scatter
 
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_ScaTotCross" + "-" + Situation, Extension="jpg")
-            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Scattering_Cross_Section_Total_Distribution, "Scattering Cross Section (Total)=\n" + str(round(Scattering_Cross_Section_Total * 10 ** 18)) + " nm^2", Y_Label5, Situation)
+            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Sample_Diameter_Min, Sample_Diameter_Max, Scattering_Cross_Section_Total_Distribution, "Scattering Cross Section (Total)=\n" + str(round(Scattering_Cross_Section_Total * 10 ** 18)) + " nm^2", Y_Label5, Situation)
 
             # MAC_MSC
             Mass_Sample_Eff = []
@@ -276,7 +280,7 @@ if __name__ == "__main__":
             MSC_Diff_Rho_Cte = Scattering_Cross_Section_Diff_Tot / Total_Mass_Rho_Cte
 
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_Mass" + "-" + Situation, Extension="jpg")
-            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Mass_Sample_Eff, "MAC=" + str(round(MAC, 2)) + "\n" + "MSC=" + str(round(MSC, 2)) + "\n" + "MSC-Diff=" + str(round(MSC_Diff, 2)), Y_Label6, Situation)
+            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Sample_Diameter_Min, Sample_Diameter_Max, Mass_Sample_Eff, "MAC=" + str(round(MAC, 2)) + "\n" + "MSC=" + str(round(MSC, 2)) + "\n" + "MSC-Diff=" + str(round(MSC_Diff, 2)), Y_Label6, Situation)
 
             Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="_Mass_Rho_Cte" + "-" + Situation, Extension="jpg")
-            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Mass_Sample_Rho_Cte, "MAC=" + str(round(MAC_Rho_Cte, 2)) + "\n" + "MSC=" + str(round(MSC_Rho_Cte, 2)) + "\n" + "MSC-Diff=" + str(round(MSC_Diff_Rho_Cte, 2)), Y_Label6, Situation)
+            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, Diameter_Nano[:-1], X_Label1, Sample_Diameter_Min, Sample_Diameter_Max, Mass_Sample_Rho_Cte, "MAC=" + str(round(MAC_Rho_Cte, 2)) + "\n" + "MSC=" + str(round(MSC_Rho_Cte, 2)) + "\n" + "MSC-Diff=" + str(round(MSC_Diff_Rho_Cte, 2)), Y_Label6, Situation)
