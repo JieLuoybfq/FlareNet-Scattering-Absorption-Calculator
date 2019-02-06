@@ -80,7 +80,7 @@ def Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address, X_Array, Y_array, X_Min=None, X
         ax1.grid(True, which='major', axis="both", alpha=0.5)
         ax1.legend(bbox_to_anchor=(0.7, 0.9), loc='center left', fontsize='large')
         if Plot_Title != None:
-            plt.title(Plot_Title, fontsize=Plot_Title_Size)
+            plt.title(Plot_Title, fontsize=Plot_Title_Size, y=1.08)
         plt.savefig(Address, format='jpg', dpi=Figure_DPI, bbox_inches='tight')
         plt.clf()
         plt.close()
