@@ -9,6 +9,7 @@ from matplotlib import rcParams
 from pathlib import Path
 import os
 import matplotlib.pyplot as plt
+import csv
 from mpl_toolkits.mplot3d import Axes3D
 
 ####### Plotting Parameters
@@ -29,15 +30,55 @@ def Primary_Particle_Size_meter(da_meter, dp100_meter, Dtem):
         raise
 
 
-def Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address, Identifier, X_Array, Y_array, X_Min=None, X_Max=None, Y_Min=None, Y_Max=None, X_Label=None, Y_Legend=None, Y_label1=None, Plot_Title=None, label_font_size=12, Plot_Title_Size=12, Figure_DPI=1200, alpha_Y=0.9, Marker_Size=3):
+def Dictionary_ToCSV(address, dictionary):
+    try:
+
+        with open(address, 'w') as csv_file:
+            writer = csv.writer(csv_file)
+            for key, value in dictionary.items():
+                if isinstance(value, list) == True:
+                    value.insert(0, key)
+
+                    # for item in Total:
+                    writer.writerow(value)
+                    # for i in range(len(value)):
+                    #     writer.write([value[i]])
+                    # writer.write("\n")
+
+                else:
+                    writer.writerow([key, value])
+
+    except Exception as e:
+        logging.exception(e)
+        raise
+
+
+def Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address, Identifier, X_Array, Y_array, X_Min=None, X_Max=None, Y_Min=None, Y_Max=None, X_Label=None, Y_Legend=None, Y_label1=None, Plot_Title=None, label_font_size=12, Plot_Title_Size=12, Figure_DPI=1200, alpha_Y=0.7, Marker_Size=5):
     try:
 
         fig, ax1 = plt.subplots()
         plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
         Number_Situation = len(Identifier)
+
+        Linestyles = ['-', '--', '-.', ':']
+        Count_Linestyles = len(Linestyles) - 1
+        Markerstyles = [',', '+', '.', 'o', '*']
+        Count_Markerstyles = len(Markerstyles) - 1
+        Marker_Size_Step = Marker_Size / (Number_Situation + 8)
+        alpha_Y_Step = alpha_Y / (Number_Situation + 8)
+        i1 = 0
+        i2 = 0
         for i in range(Number_Situation):
-            ax1.plot(X_Array[Identifier[i]], Y_array[Identifier[i]], label=Identifier[i], alpha=alpha_Y, markersize=Marker_Size)
+            ax1.plot(X_Array[Identifier[i]], Y_array[Identifier[i]], label=Identifier[i], alpha=alpha_Y, marker=Markerstyles[i2], linestyle=Linestyles[i1], markersize=Marker_Size)
+            alpha_Y -= alpha_Y_Step
+            Marker_Size -= Marker_Size_Step
+            i1 += 1
+            if i1 == Count_Linestyles:
+                i1 = 0
+                i2 += 1
+                if i2 == Count_Markerstyles:
+                    i2 = 0
 
         if X_Label != None:
             ax1.set_xlabel(X_Label, fontsize=label_font_size)
@@ -49,7 +90,7 @@ def Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address, Identifier, X_Array,
         if Y_label1 != None:
             ax1.set_ylabel(Y_label1, fontsize=label_font_size)
         ax1.grid(True, which='major', axis="both", alpha=0.5)
-        ax1.legend(bbox_to_anchor=(0.7, 0.9), loc='center left', fontsize='large')
+        ax1.legend(bbox_to_anchor=(1.05, 0.70), loc='center left', fontsize='medium')
         if Plot_Title != None:
             plt.title(Plot_Title, fontsize=Plot_Title_Size)
         plt.savefig(Address, format='jpg', dpi=Figure_DPI, bbox_inches='tight')

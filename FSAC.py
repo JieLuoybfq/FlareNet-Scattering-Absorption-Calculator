@@ -18,6 +18,7 @@ if __name__ == "__main__":
     logging.info("Program Started!")
     script_dir = os.path.dirname(os.path.realpath('__file__'))
     Graph_Folder = "Graph Output"
+    Results_Folder = "Results"
 
     ####################### Aggregate diameter bounds
 
@@ -27,31 +28,32 @@ if __name__ == "__main__":
 
     ####################### Particle Sample Setting
 
-    Sample_Total_Number_Concentration = 5000  # /cm^3
-    Sample_LogN_D_Median_Min = 200  # Smallest diameter of computation (nm)
+    Sample_Total_Number_Concentration = 4000  # Sample total concentration #/cm^3
+    Sample_LogN_D_Median_Min = 150  # Smallest diameter of computation (nm)
     Sample_LogN_D_Median_Max = 350  # Largest diameter of computation (nm)
     Sample_LogN_D_Median_Bins = 2  # Number of the Steps
 
-    Sample_LogN_Sigma_Min = 1.4  # Smallest Sigma G
-    Sample_LogN_Sigma_Max = 1.8  # Largest Sigma G
+    Sample_LogN_Sigma_Min = 1.1  # Smallest Sample Sigma G
+    Sample_LogN_Sigma_Max = 1.8  # Largest Sample Sigma G
     Sample_LogN_Sigma_Bins = 2  # Number of the Steps
+    #######################
 
     Sample_Sigma_Bound = 2.75  # Number of Sigma G to cover
     Sample_Sigma_Bins = 250  # Number of bins
     #######################
 
-    Sample_Diameter_Min = 20  # in nm
-    Sample_Diameter_Max = 2000  # in nm
+    Sample_Diameter_Min = 20  # min diameter in nm for plotting
+    Sample_Diameter_Max = 2000  # max diameter in nm for plotting
     ####################### Effective Density
 
     # Eff_k = 0.418  # effective density variable for the result to be in kg/m^3
     Eff_dm_Min = 2.201  # effective density variable for the result to be in kg/m^3
-    Eff_dm_Max = 2.70
+    Eff_dm_Max = 2.60
     Eff_dm_Bins = 2
     #######################
     Eff_rho_100nm_Min = 502.1  # kg/m^3 for 100nm aggregate
-    Eff_rho_100nm_Max = 700  # kg/m^3 for 100nm aggregate
-    Eff_rho_100nm_Bins = 2  # kg/m^3 for 100nm aggregate
+    Eff_rho_100nm_Max = 600  # kg/m^3 for 100nm aggregate
+    Eff_rho_100nm_Bins = 1  # kg/m^3 for 100nm aggregate
 
     # Eff_k = FN.Effective_Density_K_FromRho100nm(Eff_dm, Eff_rho_100nm)
     Soot_Rho_Cte = 1800
@@ -60,7 +62,7 @@ if __name__ == "__main__":
 
     Primary_Diameter_100nm_Min = 20 * 1e-9  # Primary particle diameter of 100 nm aggregate
     Primary_Diameter_100nm_Max = 26 * 1e-9  # Primary particle diameter of 100 nm aggregate
-    Primary_Diameter_100nm_Bins = 2  # Primary particle diameter of 100 nm aggregate
+    Primary_Diameter_100nm_Bins = 1  # Primary particle diameter of 100 nm aggregate
     #######################
 
     # Primary_D_TEM = 0.34
@@ -116,7 +118,9 @@ if __name__ == "__main__":
     Theta_Diff = abs((Theta_Finish - Theta_Start) / Theta_Number)
     Phi_Diff = abs((Phi_Finish - Phi_Start) / Phi_Number)
     # alpha=2*pi*radius/lambda
-
+    #######################
+    Figure_Enable = 0
+    Counter = 0
     #######################
 
     Soot_Complex = (((Soot_Refractive_Index ** 2) - 1) / ((Soot_Refractive_Index ** 2) + 2))
@@ -150,16 +154,14 @@ if __name__ == "__main__":
 
     #######################
 
-    # Total_Particle_Mass = [[0 for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
-    # Mass_Absorption_Eff = [[0 for j in range(LogNormal_Sigma_Number_Sample)] for i in range(LogNormal_D_Median_Number_Sample)]
-
     X_Label1 = 'Mobility-equivalent Diameter (nm)'
     Y_Label1 = 'dN/dLogDp, (#/cm' + "$^{}$".format(3) + ')'
     Y_Label2 = "Primary Particle Diameter-dp(nm)"
-    Y_Label3 = "Absorption Cross Section(m^2/dLogDp)"
+    Y_Label3 = 'Absorption Cross Section(m' + "$^{}$".format(2) + ')'
     Y_Label4 = "Absorption Efficiency(/dLogDp)"
-    Y_Label5 = "Scattering Cross Section(m^2/dLogDp)"
+    Y_Label5 = 'Scattering Cross Section(m' + "$^{}$".format(2) + ')'
     Y_Label6 = "Sample Mass(kg/dLogDp)"
+    Y_Label7 = 'Effective Density (kg/m' + "$^{}$".format(3) + ')'
     logging.info("Labels Created!")
 
     Save_Situation = []
@@ -173,13 +175,14 @@ if __name__ == "__main__":
     Save_Effective_Density = {}
     Save_Mass_Sample_Eff_dlnDp = {}
     Save_Mass_Sample_Rho_Cte_dlnDp = {}
+    Save_MAC = {}
+    Save_MSC_Diff = {}
+    Save_MSC_Total = {}
 
-    # Graph_Folder += f"/PD={round(Primary_Diameter_100nm * 10 ** 9, 0)}-D_TEM={round(Primary_D_TEM,2)}-PSig={round(Primary_Sigma_da_CTE,2)}-EffK={round(Eff_k,2)}-EffDm={round(Eff_dm,2)}-RI={Soot_Refractive_Index}-WL={round(Wave_Length * 10 ** 9, 0)}"
-    Counter = 0
     for i1 in range(Sample_LogN_D_Median_Bins):  # Sample Median Loop
         for i2 in range(Sample_LogN_Sigma_Bins):  # Sample Sigma Loop
             for i3 in range(Eff_dm_Bins):  # Effective Density Dm Loop
-                for i4 in range(Eff_rho_100nm_Bins):  # Effective Density fo 100nm aggregate Loop
+                for i4 in range(Eff_rho_100nm_Bins):  # Effective Density for 100nm aggregate Loop
                     for i5 in range(Primary_Diameter_100nm_Bins):  # Primary Diameter for 100 nm particle Diameter Loop
                         for i6 in range(Primary_Sigma_da_CTE_Bins):  # Primary Diameter Sigma Loop
 
@@ -218,10 +221,10 @@ if __name__ == "__main__":
                             logging.info(f"LogNormal Check:{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {SUM}: {SUM1}")
 
                             Save_LogN_Sample_SizeDistribution[Situation] = LogN_Sample_SizeDistribution
-
-                            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "NumberConcentration", Extension="jpg")
-                            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=LogN_Sample_SizeDistribution, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_Legend="Number Concentration,\nTotal Conc.= " + str(round(Sample_Total_Number_Concentration, 1)), Y_label1=Y_Label1,
-                                                                   Plot_Title=Situation)
+                            if Figure_Enable == 1:
+                                Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "NumberConcentration", Extension="jpg")
+                                FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=LogN_Sample_SizeDistribution, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_Legend="Number Concentration,\nTotal Conc.= " + str(round(Sample_Total_Number_Concentration, 1)), Y_label1=Y_Label1,
+                                                                       Plot_Title=Situation)
 
                             # Primary Particle Size
 
@@ -233,9 +236,9 @@ if __name__ == "__main__":
                             logging.info(f"Primary Particle Diameter(m):{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {Soot_Primary_Diameter_Median_Nano}")
 
                             Save_Soot_Primary_Diameter_Median_Nano[Situation] = Soot_Primary_Diameter_Median_Nano
-
-                            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "PrimaryPS", Extension="jpg")
-                            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Soot_Primary_Diameter_Median_Nano, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, Y_Min=Primary_Y_Min, Y_Max=Primary_Y_Max, X_Label=X_Label1, Y_Legend="Primary Particle Size", Y_label1=Y_Label2, Plot_Title=Situation)
+                            if Figure_Enable == 1:
+                                Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "PrimaryPS", Extension="jpg")
+                                FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Soot_Primary_Diameter_Median_Nano, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, Y_Min=Primary_Y_Min, Y_Max=Primary_Y_Max, X_Label=X_Label1, Y_Legend="Primary Particle Size", Y_label1=Y_Label2, Plot_Title=Situation)
 
                             # Finding Primary Particle Number and Size
                             Primary_Diameter_Bank = []
@@ -277,11 +280,11 @@ if __name__ == "__main__":
                                 Absorption_Cross_Section += ABS
 
                             Save_Absorption_Cross_Section_Sample_dlnDp[Situation] = Absorption_Cross_Section_Sample_dlnDp
-
-                            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "ABSCross", Extension="jpg")
-                            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Absorption_Cross_Section_Sample_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1,
-                                                                   Y_Legend="Absorption Cross Section=\n" + str(round(Absorption_Cross_Section * 10 ** 12, 2)) + " um" + "$^{}$".format(2), Y_label1=Y_Label3,
-                                                                   Plot_Title=Situation)
+                            if Figure_Enable == 1:
+                                Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "ABSCross", Extension="jpg")
+                                FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Absorption_Cross_Section_Sample_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1,
+                                                                       Y_Legend="Absorption Cross Section=\n" + str(round(Absorption_Cross_Section * 10 ** 12, 2)) + " um" + "$^{}$".format(2), Y_label1=Y_Label3,
+                                                                       Plot_Title=Situation)
 
                             Absorption_Efficiency_Sample = []
                             Absorption_Efficiency_Sample_dlnDp = []
@@ -291,9 +294,9 @@ if __name__ == "__main__":
                                 Absorption_Efficiency_Sample_dlnDp.append(Absorption_Efficiency_Sample[k] / (log(Diameter_Nano[k + 1]) - log(Diameter_Nano[k])))
 
                             Save_Absorption_Efficiency_Sample_dlnDp[Situation] = Absorption_Efficiency_Sample_dlnDp
-
-                            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "ABSEff", Extension="jpg")
-                            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Absorption_Efficiency_Sample_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_Legend="Absorption Efficiency", Y_label1=Y_Label4, Plot_Title=Situation)
+                            if Figure_Enable == 1:
+                                Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "ABSEff", Extension="jpg")
+                                FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Absorption_Efficiency_Sample_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_Legend="Absorption Efficiency", Y_label1=Y_Label4, Plot_Title=Situation)
 
                             # Scattering RDG
                             # Differential
@@ -321,10 +324,10 @@ if __name__ == "__main__":
                                 Scattering_Cross_Section_Diff_Tot += Diff_Scatter
 
                             Save_Differential_Scattering_Cross_Section_Full_dlnDp[Situation] = Differential_Scattering_Cross_Section_Full_dlnDp
-
-                            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "ScatterDiffCross", Extension="jpg")
-                            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Differential_Scattering_Cross_Section_Full_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1,
-                                                                   Y_Legend="Total Scattering Cross Section (Differential)=\n" + str(round(Scattering_Cross_Section_Diff_Tot * 10 ** 12, 2)) + " um" + "$^{}$".format(2), Y_label1=Y_Label5, Plot_Title=Situation)
+                            if Figure_Enable == 1:
+                                Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "ScatterDiffCross", Extension="jpg")
+                                FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Differential_Scattering_Cross_Section_Full_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1,
+                                                                       Y_Legend="Total Scattering Cross Section (Differential)=\n" + str(round(Scattering_Cross_Section_Diff_Tot * 10 ** 12, 2)) + " um" + "$^{}$".format(2), Y_label1=Y_Label5, Plot_Title=Situation)
 
                             # Total Scattering
                             Scattering_Cross_Section_Total_Distribution = []
@@ -343,11 +346,11 @@ if __name__ == "__main__":
                                 Scattering_Cross_Section_Total += Total_Scatter
 
                             Save_Scattering_Cross_Section_Total_Distribution_dlnDp[Situation] = Scattering_Cross_Section_Total_Distribution_dlnDp
-
-                            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "ScatterTotCross", Extension="jpg")
-                            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Scattering_Cross_Section_Total_Distribution_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1,
-                                                                   Y_Legend="Scattering Cross Section (Total)=\n" + str(round(Scattering_Cross_Section_Total * 10 ** 12, 2)) + " um" + "$^{}$".format(2),
-                                                                   Y_label1=Y_Label5, Plot_Title=Situation)
+                            if Figure_Enable == 1:
+                                Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "ScatterTotCross", Extension="jpg")
+                                FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Scattering_Cross_Section_Total_Distribution_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1,
+                                                                       Y_Legend="Scattering Cross Section (Total)=\n" + str(round(Scattering_Cross_Section_Total * 10 ** 12, 2)) + " um" + "$^{}$".format(2),
+                                                                       Y_label1=Y_Label5, Plot_Title=Situation)
 
                             # MAC_MSC
                             Mass_Sample_Eff = []
@@ -382,43 +385,72 @@ if __name__ == "__main__":
                             Save_Effective_Density[Situation] = Density
                             Save_Mass_Sample_Eff_dlnDp[Situation] = Mass_Sample_Eff_dlnDp
                             Save_Mass_Sample_Rho_Cte_dlnDp[Situation] = Mass_Sample_Rho_Cte_dlnDp
+                            Save_MAC[Situation] = MAC
+                            Save_MSC_Total[Situation] = MSC
+                            Save_MSC_Diff[Situation] = MSC_Diff
 
-                            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "EffectiveDensity", Extension="jpg")
-                            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Density, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1="Effective Density (kg/m^3)", Plot_Title=Situation)
+                            if Figure_Enable == 1:
+                                Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "EffectiveDensity", Extension="jpg")
+                                FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Density, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label7, Plot_Title=Situation)
 
-                            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "MassDistribution", Extension="jpg")
-                            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Mass_Sample_Eff_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_Legend="MAC=" + str(round(MAC, 2)) + "\n" + "MSC=" + str(round(MSC, 2)) + "\n" + "MSC-Diff=" + str(round(MSC_Diff, 2)),
-                                                                   Y_label1=Y_Label6,
-                                                                   Plot_Title=Situation)
+                                Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "MassDistribution", Extension="jpg")
+                                FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Mass_Sample_Eff_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_Legend="MAC=" + str(round(MAC, 2)) + "\n" + "MSC=" + str(round(MSC, 2)) + "\n" + "MSC-Diff=" + str(round(MSC_Diff, 2)),
+                                                                       Y_label1=Y_Label6,
+                                                                       Plot_Title=Situation)
 
-                            Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "MassRhoCteDistribution", Extension="jpg")
-                            FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Mass_Sample_Rho_Cte_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1,
-                                                                   Y_Legend="MAC=" + str(round(MAC_Rho_Cte, 2)) + "\n" + "MSC=" + str(round(MSC_Rho_Cte, 2)) + "\n" + "MSC-Diff=" + str(round(MSC_Diff_Rho_Cte, 2)),
-                                                                   Y_label1=Y_Label6, Plot_Title=Situation)
+                                Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder_Situation, FileName=str(Counter) + "_" + "MassRhoCteDistribution", Extension="jpg")
+                                FN.Fig_Plot_Save_1Lines_X_Log_Y_Linear(Address=Address, X_Array=Diameter_Nano[:-1], Y_array=Mass_Sample_Rho_Cte_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1,
+                                                                       Y_Legend="MAC=" + str(round(MAC_Rho_Cte, 2)) + "\n" + "MSC=" + str(round(MSC_Rho_Cte, 2)) + "\n" + "MSC-Diff=" + str(round(MSC_Diff_Rho_Cte, 2)),
+                                                                       Y_label1=Y_Label6, Plot_Title=Situation)
 
     Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="Sample_SizeDistribution", Extension="jpg")
     FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_LogN_Sample_SizeDistribution, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label1, Plot_Title="Number Concentration")
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Sample_SizeDistribution", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_LogN_Sample_SizeDistribution)
 
     Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="Soot_Primary_Diameter_Median", Extension="jpg")
     FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_Soot_Primary_Diameter_Median_Nano, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label2, Plot_Title="Primary Particle Diameter")
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Soot_Primary_Diameter_Median", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Soot_Primary_Diameter_Median_Nano)
 
     Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="Absorption_Cross_Section_Sample", Extension="jpg")
     FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_Absorption_Cross_Section_Sample_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label3, Plot_Title="Total Absorption Cross Section ")
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Absorption_Cross_Section_Sample", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Absorption_Cross_Section_Sample_dlnDp)
 
     Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="Absorption_Efficiency_Sample", Extension="jpg")
     FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_Absorption_Efficiency_Sample_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label4, Plot_Title="Absorption Efficiency")
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Absorption_Efficiency_Sample", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Absorption_Efficiency_Sample_dlnDp)
 
     Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="Differential_Scattering_Cross_Section", Extension="jpg")
     FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_Differential_Scattering_Cross_Section_Full_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label5, Plot_Title="Scattering Cross Section_ Diff")
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Differential_Scattering_Cross_Section", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Differential_Scattering_Cross_Section_Full_dlnDp)
 
     Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="Scattering_Cross_Section_Total", Extension="jpg")
     FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_Scattering_Cross_Section_Total_Distribution_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label5, Plot_Title="Scattering Cross Section_ Total")
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Scattering_Cross_Section_Total", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Scattering_Cross_Section_Total_Distribution_dlnDp)
 
     Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="Effective_Density", Extension="jpg")
-    FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_Effective_Density, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label6, Plot_Title="Effective Density")
+    FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_Effective_Density, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label7, Plot_Title="Effective Density")
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Effective_Density", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Effective_Density)
 
     Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="Mass_Sample_Effective_Density", Extension="jpg")
     FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_Mass_Sample_Eff_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label6, Plot_Title="Mass Distribution using Effective Density")
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Mass_Sample_Effective_Density", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Mass_Sample_Eff_dlnDp)
 
     Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="Mass_Sample_Rho_Cte", Extension="jpg")
     FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_Mass_Sample_Rho_Cte_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label6, Plot_Title="Mass Distribution using Constant Density")
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Mass_Sample_Rho_Cte", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Mass_Sample_Rho_Cte_dlnDp)
+
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="MAC", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_MAC)
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="MSC_Total", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_MSC_Total)
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="MSC_Diff", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_MSC_Diff)
