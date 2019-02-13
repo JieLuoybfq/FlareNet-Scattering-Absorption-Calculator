@@ -33,7 +33,7 @@ if __name__ == "__main__":
     Sample_LogN_D_Median_Max = 350  # Largest diameter of computation (nm)
     Sample_LogN_D_Median_Bins = 2  # Number of the Steps
 
-    Sample_LogN_Sigma_Min = 1.1  # Smallest Sample Sigma G
+    Sample_LogN_Sigma_Min = 1.2  # Smallest Sample Sigma G
     Sample_LogN_Sigma_Max = 1.8  # Largest Sample Sigma G
     Sample_LogN_Sigma_Bins = 2  # Number of the Steps
     #######################
@@ -47,22 +47,22 @@ if __name__ == "__main__":
     ####################### Effective Density
 
     # Eff_k = 0.418  # effective density variable for the result to be in kg/m^3
-    Eff_dm_Min = 2.201  # effective density variable for the result to be in kg/m^3
-    Eff_dm_Max = 2.60
+    Eff_dm_Min = 2.4  # effective density variable for the result to be in kg/m^3
+    Eff_dm_Max = 2.8
     Eff_dm_Bins = 2
     #######################
-    Eff_rho_100nm_Min = 502.1  # kg/m^3 for 100nm aggregate
-    Eff_rho_100nm_Max = 600  # kg/m^3 for 100nm aggregate
-    Eff_rho_100nm_Bins = 1  # kg/m^3 for 100nm aggregate
+    Eff_rho_100nm_Min = 450  # kg/m^3 for 100nm aggregate
+    Eff_rho_100nm_Max = 700  # kg/m^3 for 100nm aggregate
+    Eff_rho_100nm_Bins = 2  # kg/m^3 for 100nm aggregate
 
     # Eff_k = FN.Effective_Density_K_FromRho100nm(Eff_dm, Eff_rho_100nm)
     Soot_Rho_Cte = 1800
 
     ####################### Variation of Primary Particle Size within the sample
 
-    Primary_Diameter_100nm_Min = 20 * 1e-9  # Primary particle diameter of 100 nm aggregate
+    Primary_Diameter_100nm_Min = 15 * 1e-9  # Primary particle diameter of 100 nm aggregate
     Primary_Diameter_100nm_Max = 26 * 1e-9  # Primary particle diameter of 100 nm aggregate
-    Primary_Diameter_100nm_Bins = 1  # Primary particle diameter of 100 nm aggregate
+    Primary_Diameter_100nm_Bins = 2  # Primary particle diameter of 100 nm aggregate
     #######################
 
     # Primary_D_TEM = 0.34
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     Phi_Diff = abs((Phi_Finish - Phi_Start) / Phi_Number)
     # alpha=2*pi*radius/lambda
     #######################
-    Figure_Enable = 0
+    Figure_Enable = 1
     Counter = 0
     #######################
 
@@ -169,6 +169,9 @@ if __name__ == "__main__":
     Save_LogN_Sample_SizeDistribution = {}
     Save_Soot_Primary_Diameter_Median_Nano = {}
     Save_Absorption_Cross_Section_Sample_dlnDp = {}
+    Save_Primary_Diameter_Bank = {}
+    Save_Primary_Number_Bank = {}
+    Save_Primary_Probability_Bank = {}
     Save_Absorption_Efficiency_Sample_dlnDp = {}
     Save_Differential_Scattering_Cross_Section_Full_dlnDp = {}
     Save_Scattering_Cross_Section_Total_Distribution_dlnDp = {}
@@ -262,6 +265,10 @@ if __name__ == "__main__":
                                 logging.debug(f"Primary Particle Number:{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {Primary_Number}")
                             # FN.Fig_Plot_3D_Show_XCte(Diameter_Nano[:-1], Primary_Diameter_Bank, Primary_Probability_Bank)
                             logging.info(f"Primary Particle Probability Check:{Situation}:Sigma Bound:{Sample_Sigma_Bound}: {SUM2}")
+
+                            Save_Primary_Diameter_Bank[Situation] = Primary_Diameter_Bank
+                            Save_Primary_Number_Bank[Situation] = Primary_Number_Bank
+                            Save_Primary_Probability_Bank[Situation] = Primary_Probability_Bank
 
                             # Absorption RDG
                             Absorption_Cross_Section_Sample = []
@@ -403,6 +410,8 @@ if __name__ == "__main__":
                                                                        Y_Legend="MAC=" + str(round(MAC_Rho_Cte, 2)) + "\n" + "MSC=" + str(round(MSC_Rho_Cte, 2)) + "\n" + "MSC-Diff=" + str(round(MSC_Diff_Rho_Cte, 2)),
                                                                        Y_label1=Y_Label6, Plot_Title=Situation)
 
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Sample_Agggregate_Size", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Diameter)
     Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="Sample_SizeDistribution", Extension="jpg")
     FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_LogN_Sample_SizeDistribution, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label1, Plot_Title="Number Concentration")
     Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Sample_SizeDistribution", Extension="csv")
@@ -412,6 +421,13 @@ if __name__ == "__main__":
     FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_Soot_Primary_Diameter_Median_Nano, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label2, Plot_Title="Primary Particle Diameter")
     Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Soot_Primary_Diameter_Median", Extension="csv")
     FN.Dictionary_ToCSV(Address, Save_Soot_Primary_Diameter_Median_Nano)
+
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Primary_Diameter_Distribution", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Primary_Diameter_Bank)
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Primary_Number_Distribution", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Primary_Number_Bank)
+    Address = FN.File_Pointer(Main=script_dir, FolderName=Results_Folder, FileName="Primary_Probability_Distribution", Extension="csv")
+    FN.Dictionary_ToCSV(Address, Save_Primary_Probability_Bank)
 
     Address = FN.File_Pointer(Main=script_dir, FolderName=Graph_Folder, FileName="Absorption_Cross_Section_Sample", Extension="jpg")
     FN.Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address=Address, Identifier=Save_Situation, X_Array=Save_Diameter, Y_array=Save_Absorption_Cross_Section_Sample_dlnDp, X_Min=Sample_Diameter_Min, X_Max=Sample_Diameter_Max, X_Label=X_Label1, Y_label1=Y_Label3, Plot_Title="Total Absorption Cross Section ")

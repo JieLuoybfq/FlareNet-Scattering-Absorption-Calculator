@@ -10,6 +10,7 @@ from pathlib import Path
 import os
 import matplotlib.pyplot as plt
 import csv
+import copy
 from mpl_toolkits.mplot3d import Axes3D
 
 ####### Plotting Parameters
@@ -30,9 +31,9 @@ def Primary_Particle_Size_meter(da_meter, dp100_meter, Dtem):
         raise
 
 
-def Dictionary_ToCSV(address, dictionary):
+def Dictionary_ToCSV(address, dictionary1):
     try:
-
+        dictionary = copy.deepcopy(dictionary1)
         with open(address, 'w') as csv_file:
             writer = csv.writer(csv_file)
             for key, value in dictionary.items():
@@ -53,7 +54,7 @@ def Dictionary_ToCSV(address, dictionary):
         raise
 
 
-def Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address, Identifier, X_Array, Y_array, X_Min=None, X_Max=None, Y_Min=None, Y_Max=None, X_Label=None, Y_Legend=None, Y_label1=None, Plot_Title=None, label_font_size=12, Plot_Title_Size=12, Figure_DPI=1200, alpha_Y=0.7, Marker_Size=5):
+def Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address, Identifier, X_Array, Y_array, X_Min=None, X_Max=None, Y_Min=None, Y_Max=None, X_Label=None, Y_Legend=None, Y_label1=None, Plot_Title=None, label_font_size=12, Plot_Title_Size=12, Figure_DPI=1200, alpha_Y=0.7, Marker_Size=4.5):
     try:
 
         fig, ax1 = plt.subplots()
@@ -61,12 +62,12 @@ def Fig_Plot_Save_1Lines_X_Log_Y_Dictionary_Linear(Address, Identifier, X_Array,
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
         Number_Situation = len(Identifier)
 
-        Linestyles = ['-', '--', '-.', ':']
+        Linestyles = ['-', ':', '--', '-.']
         Count_Linestyles = len(Linestyles) - 1
-        Markerstyles = [',', '+', '.', 'o', '*']
+        Markerstyles = ['*', 'v', '>', 'o', 'D']
         Count_Markerstyles = len(Markerstyles) - 1
-        Marker_Size_Step = Marker_Size / (Number_Situation + 8)
-        alpha_Y_Step = alpha_Y / (Number_Situation + 8)
+        Marker_Size_Step = Marker_Size / (Number_Situation + 10)
+        alpha_Y_Step = alpha_Y / (Number_Situation + 10)
         i1 = 0
         i2 = 0
         for i in range(Number_Situation):
