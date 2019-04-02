@@ -39,12 +39,7 @@ def Dictionary_ToCSV(address, dictionary1):
             for key, value in dictionary.items():
                 if isinstance(value, list) == True:
                     value.insert(0, key)
-
-                    # for item in Total:
                     writer.writerow(value)
-                    # for i in range(len(value)):
-                    #     writer.write([value[i]])
-                    # writer.write("\n")
 
                 else:
                     writer.writerow([key, value])
@@ -185,6 +180,18 @@ def Number_Primary_Particle(da_meter, dp_meter, Soot_Prefactor_k, Soot_Fractal_D
         raise
 
 
+def Number_Primary_Particle_Mass(da_meter, dp_meter, eff_k, eff_Dm, rho_cte):
+    try:
+
+        A1 = (eff_k * da_meter ** eff_Dm) / (rho_cte * pi * (dp_meter ** 3) / 6)
+        A2 = 1.13 * (da_meter / dp_meter) ** 2.2
+        return round(A1), round(A2)
+
+    except Exception as e:
+        logging.exception(e)
+        raise
+
+
 def Diff_Integral_Phi(Scattered_Theta, Phi_Radian, Theta_Rad, Theta_Diff, Phi_Diff, Formula=1):
     try:
 
@@ -223,7 +230,7 @@ def Bins_LogN_Distributed(Median_Diameter, Sigma_G, Sigma_G_Bound, Total_Number_
         raise
 
 
-def Primary_LogN_Generator(dp_Median_meter, Sigma_g_Primary, Sigma_g_Number, Number_Points, da_meter, Soot_Prefactor_k, Soot_Fractal_D):
+def Primary_LogN_Generator_Mass(dp_Median_meter, Sigma_g_Primary, Sigma_g_Number, Number_Points, da_meter, Eff_dm, Eff_k, rho_cte):
     try:
         if Sigma_g_Primary != 1:
             Dmax = dp_Median_meter * (Sigma_g_Primary ** Sigma_g_Number)
@@ -233,18 +240,30 @@ def Primary_LogN_Generator(dp_Median_meter, Sigma_g_Primary, Sigma_g_Number, Num
             Dmax = dp_Median_meter * (1.5 ** 2)
             Dmin = dp_Median_meter * (1.5 ** (-1 * 2))
             Diam_total = np.linspace(Dmin, Dmax, num=Number_Points)
-            k = 3
-        Number_Primary = []
+
+        Number_Primary1 = []
+        Number_Primary2 = []
+        Mass_Agg1 = []
+        Mass_Agg2 = []
+        Mass_Ave1 = 0
+        Mass_Ave2 = 0
         Probability = []
         Sum = 0
 
         for i in range(len(Diam_total) - 1):
-            Number_Primary.append(Number_Primary_Particle(da_meter, Diam_total[i], Soot_Prefactor_k, Soot_Fractal_D))
+            N1, N2 = Number_Primary_Particle_Mass(da_meter, Diam_total[i], eff_k=Eff_k, eff_Dm=Eff_dm, rho_cte=rho_cte)
+            Number_Primary1.append(N1)
+            Number_Primary2.append(N2)
         for i in range(len(Diam_total) - 1):
             Probability.append(LogN_Distribution(dp_Median_meter, Sigma_g_Primary, Diam_total[i + 1], Diam_total[i]))
             Sum += Probability[i]
+        for i in range(len(Diam_total) - 1):
+            Mass_Agg1.append(Aggregate_Mass(Number_Primary1[i], Diam_total[i], rho_cte))
+            Mass_Agg2.append(Aggregate_Mass(Number_Primary2[i], Diam_total[i], rho_cte))
+            Mass_Ave1 += Mass_Agg1[i] * Probability[i]
+            Mass_Ave2 += Mass_Agg2[i] * Probability[i]
 
-        return Diam_total[:-1], Number_Primary, Probability
+        return Diam_total[:-1], Number_Primary2, Probability, Mass_Agg2
 
     except Exception as e:
         logging.exception(e)
@@ -260,6 +279,17 @@ def LogN_Distribution(Median, SigmaG, Dp2, Dp1):  # return number between 0 to 1
                 return 1
             else:
                 return 0
+
+        return A
+
+    except Exception as e:
+        logging.exception(e)
+        raise
+
+
+def Aggregate_Mass(Np, dp, Rho):
+    try:
+        A = Rho * Np * (pi * ((dp) ** 3) / 6)
 
         return A
 
