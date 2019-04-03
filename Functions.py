@@ -14,16 +14,17 @@ import copy
 from mpl_toolkits.mplot3d import Axes3D
 
 ####### Plotting Parameters
+
 rcParams['mathtext.fontset'] = 'stix'
 rcParams['font.family'] = 'STIXGeneral'
 
 
 ##############
 
-def Primary_Particle_Size_meter(da_meter, dp100_meter, Dtem):
+def Primary_Particle_Size_meter(dm_meter, dp100_meter, Dtem):
     try:
 
-        A = dp100_meter * ((da_meter * 1e9 / 100) ** Dtem)
+        A = dp100_meter * ((dm_meter * 1e9 / 100) ** Dtem)
         return A
 
     except Exception as e:
@@ -421,6 +422,26 @@ def Effective_Density_K_FromRho100nm(Eff_dm, Eff_rho_100nm):
         raise
 
 
+def DTEM_FromEffectiveDensity_D_Alpha(Primary_D_Alpha, Eff_dm):
+    try:
+        K = (2 * Primary_D_Alpha - Eff_dm) / (2 * Primary_D_Alpha - 3)
+        return K
+
+    except Exception as e:
+        logging.exception(e)
+        raise
+
+
+def Primary_dp100nm(Eff_rho_100nm, Primary_K_Alpha, Soot_Material_Density, Primary_D_Alpha):
+    try:
+        K = ((Eff_rho_100nm / (Primary_K_Alpha * Soot_Material_Density)) ** (1 / (3 - 2 * Primary_D_Alpha))) * (100 * 10 ** (-9))
+        return K
+
+    except Exception as e:
+        logging.exception(e)
+        raise
+
+
 def Differential_Solid_Angle(Phi_radian, Theta_Diff, Phi_Diff):
     try:
 
@@ -443,10 +464,21 @@ def Mass_Calc(rho, da):
         raise
 
 
-def Absorption_Eff(Abs_Cross, da):
+def Abs_Scatt_Eff(CrossSection, dm):
     try:
 
-        a = Abs_Cross / ((pi / 4) * (da ** 2))
+        a = CrossSection / ((pi / 4) * (dm ** 2))
+        return a
+
+    except Exception as e:
+        logging.exception(e)
+        raise
+
+
+def SSA_Calculator(Scattering_CS, Absorption_CS):
+    try:
+
+        a = Scattering_CS / (Scattering_CS + Absorption_CS)
         return a
 
     except Exception as e:
