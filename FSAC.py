@@ -1,6 +1,6 @@
 # Programmed by Keyhan Babaee Under Prof. Steven Rogak supervision, https://github.com/KeyhanB
-# Version 1.3
-# April 2, 2018
+# Version 1.4
+# June 2018
 import Functions as FN
 import os
 import numpy as np
@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     Sample_LogN_Sigma_Min = 1.3  # Smallest Sample Sigma G
     Sample_LogN_Sigma_Max = 1.9  # Largest Sample Sigma G
-    Sample_LogN_Sigma_Bins = 1  # Number of the Steps
+    Sample_LogN_Sigma_Bins = 2  # Number of the Steps
 
     ####################### Aggregate Distribution bounds
 
@@ -38,13 +38,13 @@ if __name__ == "__main__":
 
     ####################### Effective Density
 
-    Eff_dm_Min = 2.2  # Smallest mass mobility exponent for the result to be in kg/m^3
+    Eff_dm_Min = 2.56  # Smallest mass mobility exponent for the result to be in kg/m^3
     Eff_dm_Max = 2.8  # Largest mass mobility exponent for the result to be in kg/m^3
-    Eff_dm_Bins = 3  # Number of bins
+    Eff_dm_Bins = 1  # Number of bins
 
     ####################### Effective Density for 100nm aggregate
 
-    Eff_rho_100nm_Min = 450  # Smallest effective Density of 100nm aggregate in kg/m^3
+    Eff_rho_100nm_Min = 502  # Smallest effective Density of 100nm aggregate in kg/m^3
     Eff_rho_100nm_Max = 650  # Largest effective Density of 100nm aggregate in kg/m^3
     Eff_rho_100nm_Bins = 1  # Number of bins
 
@@ -82,8 +82,8 @@ if __name__ == "__main__":
 
     ####################### Refractive index and Wave Parameters
 
-    Soot_Refractive_Index = 1.6 - 0.6j  # Complex refractive index
-    Wave_Length = 532 * 1e-9  # nm
+    Soot_Refractive_Index = 2 - 1j  # Complex refractive index
+    Wave_Length = 870 * 1e-9  # nm
     Wave_Number = 2 * pi / Wave_Length  # k
     Soot_Complex = (((Soot_Refractive_Index ** 2) - 1) / ((Soot_Refractive_Index ** 2) + 2))
     Soot_FM = (abs(Soot_Complex)) ** 2
@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     ####################### Detail Figures
 
-    Figure_Enable = 0  # 0 for disable and 1 for enable
+    Figure_Enable = 1  # 0 for disable and 1 for enable
 
     ####################### List Generation
 
@@ -277,7 +277,8 @@ if __name__ == "__main__":
                                 Absorption_Cross_Section_Specific_Particle_Size += Absorption_Cross_Section_Agg * Primary_Probability_Bank[k][p]
 
                             ABS = Absorption_Cross_Section_Specific_Particle_Size * LogN_Sample_SizeDistribution[k]
-                            Absorption_Cross_Section_Sample_dlnDp.append(ABS / (log(Diameter_Nano[k + 1]) - log(Diameter_Nano[k])))
+                            # Absorption_Cross_Section_Sample_dlnDp.append(ABS / (log(Diameter_Nano[k + 1]) - log(Diameter_Nano[k])))
+                            Absorption_Cross_Section_Sample_dlnDp.append(ABS / (LogN_Sample_SizeDistribution[k]))
                             Absorption_Cross_Section_Sample.append(ABS)
                             Absorption_Cross_Section += ABS
 
@@ -324,7 +325,8 @@ if __name__ == "__main__":
                             qDp_Full.append(qDp_Temp)
                             Diff_Scatter = Differential_Scattering_Cross_Section_T * LogN_Sample_SizeDistribution[k]
                             Differential_Scattering_Cross_Section_Full.append(Diff_Scatter)
-                            Differential_Scattering_Cross_Section_Full_dlnDp.append(Diff_Scatter / (log(Diameter_Nano[k + 1]) - log(Diameter_Nano[k])))
+                            # Differential_Scattering_Cross_Section_Full_dlnDp.append(Diff_Scatter / (log(Diameter_Nano[k + 1]) - log(Diameter_Nano[k])))
+                            Differential_Scattering_Cross_Section_Full_dlnDp.append(Diff_Scatter / (LogN_Sample_SizeDistribution[k]))
                             Scattering_Cross_Section_Diff_Tot += Diff_Scatter
 
                         Save_Differential_Scattering_Cross_Section_Full_dlnDp[Situation] = Differential_Scattering_Cross_Section_Full_dlnDp
